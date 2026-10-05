@@ -1,35 +1,27 @@
-# 补丁构建与内容说明
+# 原车蓝牙补丁构建说明
 
-源码包只包含新增 Java 辅助类、SMALI 修改脚本、审计工具、测试和文档，不包含原 APK 的完整源码。
-原 APK 并非本仓库原创；不能把解包重签名称为从完整源码编译 EasyPlay。
+本次仍直接修改用户提供的 EasyPlay 0.2.7(36) APK，不是从完整 EasyPlay 源码构建，也没有替换本地 DiPlay 项目来冒充 APK 优化。
 
-## 本地输入与工具
+## 输入与工具
 
-- 私下取得与本次相同的 EasyPlay 输入 APK，SHA256：
-  `95c194c47fb4cab0fdc75d30b698b3aefeb037386cb5470290112393396a2b68`。
-- JDK25，位于 `.tooling/jdk25`；Python3.13，build.ps1 可传 -PythonPath。
-- Android API19 的 android.jar：`.tooling/platform/android-4.4.2/android.jar`。
-- Android build-tools：`.tooling/build-tools/android-15`，含 D8、aapt、zipalign、apksigner。
-- JADX1.5.6完整jar：`.tooling/jadx/lib/jadx-1.5.6-all.jar`，使用其中 smali/dexlib2 的 Java API。
-- JUnit4.13.2与Hamcrest：`.tooling/test-libs/junit.jar`、hamcrest.jar。
-- 本地签名密钥：`.private/kitkat-probe-debug.jks`，构建脚本为此前优化版测试证书路径。
-  公共源码包不含该密钥。其他开发者需自建自己的测试证书，不能覆盖本作者签名版本。
+输入 APK 的 SHA256 必须为 `95c194c47fb4cab0fdc75d30b698b3aefeb037386cb5470290112393396a2b68`。
+源码 ZIP 包含 `easyplay-touchfix/` 与 `easyplay-oem4/` 的新增源码、构建脚本、编译桩、测试、审计与文档；不含原 APK、认证资产、原厂 APK、gocsdk、真实手机数据或签名密钥。
 
-## 步骤
+工具布局与 0.1.0 相同：`.tooling/jdk25`、`.tooling/platform/android-4.4.2/android.jar`、`.tooling/build-tools/android-15`、`.tooling/jadx/lib/jadx-1.5.6-all.jar`、`.tooling/test-libs/{junit,hamcrest}.jar`。Python 可通过 build.ps1 参数指定。
+另需本地测试证书。公共源码不提供维护者签名密钥，自建证书的 APK 不能直接覆盖维护者签名版本。
 
-在源码包根目录，用 prepare_inputs.py 将 APK 放入私有目录并提取3个DEX。
-先运行 easyplay-touchfix/build.ps1 生成稳定触摸补丁，再运行 easyplay-stability3/build.ps1。
-构建过程：API19 Java编译 -> JVM测试 -> D8 -> 原类disassemble -> 精确SMALI修改 -> assemble/merge -> DEX审计 -> APK重打包 -> 对齐 -> 签名 -> 内容核对。
+先运行 `easyplay-oem4/prepare_inputs.py <私下取得的输入APK>`，再运行 `easyplay-touchfix/build.ps1`，最后运行 `easyplay-oem4/build.ps1`。
+如果本地有 0.1.0 构建 DEX，额外检查视频与触摸类保持一致；缺少该基线时明确跳过这一可选检查，其余检查仍执行。
+私有 BC03 样本和反编译参考不存在时，对应集成用例及原厂参考审计明确跳过。协议和参数测试仍执行。
 
-BC03运行时查询按安装包核对，无须预先打入厂商代码。本地完整测试使用私有 BC03 样本；
-未提供 `.private/vendor-analysis/bc03/input.apk` 时对应1个集成用例跳过，其余用例仍执行。
-verify_vendor_schema.py 的参考Java源静态审计仅在私有反编译样本存在时执行，缺少样本会明确标为跳过。
+构建流程为 API19 Java 编译 → 测试 → D8 → 精确 SMALI 修改 → 合并及原代码审计 → 重打包 → 对齐 → 签名 → APK 内容验证。
+编译桩和 JVM 测试假对象不会打入 APK。
 
-本版 tests/stubs 只供 JVM 与编译使用，不打进 APK；原生库和认证资产来自原输入包并保持相同内容。
-公开的源码ZIP不包含输入包、认证文件、原厂APK、原厂反编译代码、Android签名密钥、真实手机地址和日志。
+## 原厂接入限制
 
-## 认证资产与分发
+只接入既有进程，不启动替代 daemon，不请求 Root、不调用 su、不 chmod、不改 system。
+BC03 Binder 只查询，公开 SppConnect 的空实现不用于启动。
+运行时先校验两个文件指纹，串口必须指向 `/dev/pts/数字`，以不创建、不截断的只写方式打开。
+数据端口使用 Android API19 LocalSocket 的 FILESYSTEM 命名空间。错误、取消和超时关闭所属客户端。
 
-原输入 APK 内含实验性离线附件身份；测试 APK 沿用这些资产。它们能从 APK 提取，
-不应被视为新的 Apple/MFi 认证或作者私有身份。源代码ZIP排除认证资产及签名密钥。
-上游对实验身份来源与限制有说明。未来iOS与车机兼容性仍需测试。
+原 APK 的原生库及实验性身份资产维持原内容，不能据此宣称新增 Apple/MFi 认证。测试 APK 内的原有实验身份可被提取；源码 ZIP 不含这些文件。
