@@ -14,8 +14,12 @@
 如果本地有 0.1.0 构建 DEX，额外检查视频与触摸类保持一致；缺少该基线时明确跳过这一可选检查，其余检查仍执行。
 私有 BC03 样本和反编译参考不存在时，对应集成用例及原厂参考审计明确跳过。协议和参数测试仍执行。
 
-构建流程为 API19 Java 编译 → 测试 → D8 → 精确 SMALI 修改 → 合并及原代码审计 → 重打包 → 对齐 → 签名 → APK 内容验证。
+构建流程为 API19 Java 编译 → 58 项 JVM 测试 → D8（min-api 17）→ 精确 SMALI 修改 → 合并及原代码审计 → 重打包 → 对齐 → 签名 → APK 内容验证。
 编译桩和 JVM 测试假对象不会打入 APK。
+
+当前输出 `artifacts/CarConnect-0.1.4-beta-OEM-test-Android4.2.apk`，适用 Android 4.2～4.4，versionCode 41。
+`patch_wireless.py` 在兼容补丁之后执行，调整原车选择、就绪、准备与主页面说明。`RememberedPhone` 沿用原偏好文件与键，不新建系统配对记录。`LegacyBootReceiver` 保持原实现。
+新增 `LegacyActivity.patchUseRememberedPhone` 是补丁自己的 UI 入口；编译桩和 `LegacyPhoneSelector.Selection` / `Reason` 签名均按输入 DEX 核对，不把桩打进 APK。
 
 ## 原厂接入限制
 
