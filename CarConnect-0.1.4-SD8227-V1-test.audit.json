@@ -1,0 +1,24 @@
+{
+  "profile": "sd8227-v1-test",
+  "baseSha256": "dfccdeb5172d61840d5323a1857e3fe280d8b6c29ef30fe3ab6b937cb0871312",
+  "apkSha256": "6328988e7b4ae458b576b8cf233bb8d3c3b627d5c7fac476b243d02e46582055",
+  "apkBytes": 7091092,
+  "identicalPayloadEntries": 37,
+  "identicalDexFiles": [
+    "classes.dex",
+    "classes2.dex",
+    "classes3.dex",
+    "assets/ecarx-modern/classes.dex"
+  ],
+  "identicalNativeLibraries": [
+    "lib/armeabi-v7a/libdiplay_crypto.so",
+    "lib/armeabi-v7a/libdiplay_lwip.so",
+    "lib/armeabi-v7a/libdiplay_opus.so"
+  ],
+  "manifestAndResourcesByteIdentical": true,
+  "newerApkSigningBlockAbsent": true,
+  "classicZipCrcVerified": true,
+  "versionCode": 41,
+  "minSdk": 17,
+  "hardwareInstallation": "pending"
+}

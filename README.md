@@ -1,18 +1,53 @@
-# CarConnect
+# CarConnect：SD8227 / Android 4.4 安装对照分支
 
-基于用户提供的 EasyPlay 0.2.7(36) APK 的车机测试补丁。当前版本：**Carplay-connect-0.1.4-beta-OEM-test**，支持 Android 4.2～4.4。
+分支：`codex/sd8227-kitkat`。基于已发布的 CarConnect 0.1.4 OEM-test，提供 **仅 V1 签名** 的安装格式对照包。尚未在 SD8227 实机安装验证，不能承诺解决所有“解析包错误”。
 
-本版简化原车无线连接：首次选择并记住 iPhone，以后启动优先恢复这台手机，不必每次重新选择。手机记录兼容已有版本；等待原车服务、暂时断连或其他手机接入时不会自动清除或替换记录。诊断移到独立入口，保留此前视频、触摸、30/60fps 设置和导航/媒体音量。
+## 下载与安装
 
-[简明操作手册](USAGE.zh-CN.md) · [修改说明](CHANGES.zh-CN.md) · [构建说明](BUILD.zh-CN.md) · [来源与许可](CREDITS.md) · [维护者主页](https://github.com/beidouxiaonan)
+到 [测试发布页](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.4-sd8227-v1-test) 下载 `CarConnect-0.1.4-SD8227-V1-test.apk` 和相应 `.sha256` 文件。文件需完整下载并以 `.apk` 结尾。
 
-首次设置：原车蓝牙连接 iPhone 并开启热点 → CarConnect 设置开启原车蓝牙、选择并记住手机 → 手机允许 CarPlay。
-以后上车：原车蓝牙、热点就绪，启动 CarConnect 等待自动连接。
+1. 复制到车机内置存储，通过文件管理器安装；若从 U 盘安装失败，再试内置存储。
+2. 已安装 CarConnect 的车机选择覆盖安装，**不要先卸载**。沿用 0.1.4 的包名、版本号及签名证书，覆盖成功会保留原应用数据，包括已选择的 iPhone。不能保留被卸载、清数据或重刷系统删除的记录。
+3. 若仍报解析错误，有条件使用下方 ADB 采集脚本取得安装错误码。仅有中文弹窗无法区分签名、文件损坏、Manifest 解析和安装器问题。
 
-原车模块本身未自动回连时，仍需从原车蓝牙页面连接已配对手机。本补丁恢复 CarConnect 的手机选择与无线会话，不代替原车配对系统。
+## 改动范围
 
-用户已反馈原车无线可连接；本次自动恢复改动尚待车机验证。58 项本地 JVM 测试通过，完成 API17 D8、DEX 差异、稳定视频/触摸、OEM 接口、签名、对齐及 APK 内容检查。
+| 项目 | 已发布 0.1.4 | 本分支对照包 |
+| --- | --- | --- |
+| 签名 | V1 + V2 + V3 | 仅 V1，重新签名而非直接删除块 |
+| APK 签名证书 | 原 CarConnect 调试证书 | 同一证书 |
+| ZIP | 原包重新打包 | 经典 ZIP，无 ZIP64；重新对齐后签名 |
+| 包名 / versionCode | `com.shihab.diplay.legacy` / 41 | 完全相同 |
+| versionName / minSdk / targetSdk | 0.1.4 OEM-test / 17 / 28 | 完全相同 |
+| ARM 库 | 3 个 `armeabi-v7a` 库 | 内容逐字节相同 |
+| DEX / Manifest / resources / assets | 0.1.4 | 内容逐字节相同 |
 
-[测试 APK 与补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.4-beta-oem-test)
+主界面仍显示 `Carplay-connect-0.1.4-beta-OEM-test`，这是安装格式变体，不是新功能版本。无线连接、记住手机、触摸与视频优化沿用 0.1.4。主分支不作修改。
 
-源码包只包含自行编写的补丁、脚本、测试和说明，不是 EasyPlay 全量源码；不含输入 APK、原厂 APK、gocsdk、反编译原厂代码、认证文件、签名密钥或用户日志。许可证及第三方声明保留。
+## 校正排查依据
+
+- Android 4.4 不支持**只有 V2** 的 APK；但有效的 **V1+V2** 可以安装。AOSP 明确说明旧平台忽略 V2、验证 V1。因此“存在 V2 就拒绝 V1”不是原生 4.4 的规则。[AOSP 官方说明](https://source.android.com/docs/security/features/apksigning/v2)
+- Android 按设备支持的 ABI 选择 APK 中相应的原生库，通用 APK 并不因同时存在 arm64 和 32 位库而必然被拒绝。本次原 APK 本来就只有 `armeabi-v7a`。[Android ABI 官方说明](https://developer.android.com/ndk/guides/abis)
+- 原 0.1.4 已通过 apksigner 的 API 19 V1 验证，并有 ELF32 ARM 库。仅 V1 包用于排除设备安装器对签名块/ZIP 格式的特殊问题，不等同于证明原包缺 V1 或缺 ABI。
+- `.so` 缺符号、依赖或链接器不兼容通常在加载库时表现为运行错误；要看 `dlopen` / `UnsatisfiedLinkError` 等日志。不能凭“解析包错误”认定是内核或新版链接器问题。
+- K2101、SD8227 的型号名与界面版本号不足以证明安装器修改方式、实际 API、ABI 或内核。应读取设备属性及安装日志。本分支没有验证这些机型的固件差异。
+
+## 仍失败时：取得具体错误码
+
+准备官方 Android platform-tools，并在车机启用 USB 调试、确认电脑调试授权。不需要 Root。没有调试入口的车机暂时无法运行该脚本，应记录完整 APK 文件名、文件大小、车机系统信息与失败时机。
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\easyplay-sd8227\collect-install.ps1 -ApkPath .\CarConnect-0.1.4-SD8227-V1-test.apk -AdbPath C:\platform-tools\adb.exe
+```
+
+多台设备时再加 `-Serial 设备编号`。脚本通过 `adb install -r` 覆盖安装，采集真实系统版本、SDK、ABI、内核、安装器错误及相关 logcat；不卸载、不清数据、不清日志、不改系统。生成日志只在本地保存，检查隐私信息后再反馈，不要上传公开仓库。
+
+`INSTALL_PARSE_FAILED_*` 指向具体解析环节；`INSTALL_FAILED_OLDER_SDK` 应核对真实 API；旧平台 ABI 失败可能显示 `INSTALL_FAILED_CPU_ABI_INCOMPATIBLE`，较新平台也可能显示 `INSTALL_FAILED_NO_MATCHING_ABIS`；证书不一致属于覆盖安装冲突，应先确认来源，不要为了测试直接卸载丢失记录。
+
+## 构建与验证
+
+执行 `build.ps1`。脚本固定核对输入 0.1.4 的 SHA256，重新打包、zipalign、用本地原证书重新签成 V1，强制关闭 V2/V3/V4。验证 API 17、19、24 签名、证书一致性、ZIP CRC、对齐、所有非签名内容逐字节相同、DEX 035、ELF32 ARM、无新签名块和反剥离标记。
+
+工具路径可通过 `-PythonPath` / `-ToolingRoot` 指定。默认构建依赖本地 `.tooling` 与 `.private`。源码包不含基础 APK、签名密钥、原包身份资产、车机日志或 OEM 系统二进制；需要自行提供已授权基础包和原签名密钥。其他签名密钥无法覆盖现有 CarConnect。
+
+本分支没有重新编译原生库或修改业务代码，所以本次只报告与安装格式有关的验证，不能把主机验证称为 SD8227 实机验证。原项目与第三方许可说明见随附 `LICENSE`、`CREDITS.md`。
