@@ -1,0 +1,17 @@
+{
+  "profile": "sd8227-startup-test",
+  "baseSha256": "6328988e7b4ae458b576b8cf233bb8d3c3b627d5c7fac476b243d02e46582055",
+  "apkSha256": "62dafea1f4278dd9ce39962ce5cf2e57afdf1b4ad98b3c0a161f40776251e86a",
+  "apkBytes": 7087922,
+  "versionCode": 44,
+  "minSdk": 17,
+  "changedEntries": [
+    "AndroidManifest.xml",
+    "classes.dex",
+    "classes3.dex"
+  ],
+  "unchangedAssetsAndNativeLibraries": true,
+  "v1Only": true,
+  "hardwareLaunch": "pending",
+  "rootCause": "awaiting device startup report"
+}

@@ -1,3 +1,16 @@
+# 0.1.6 启动排查包验证（2026-10-07）
+
+- 新入口编译目标为 API17；所有入口、Application 和记录类位于主 DEX，无 Kotlin / 二级 DEX / 原生库直接依赖。
+- 2 项启动恢复测试：失败、首次、启动中断、诊断入口及 MultiDex 失败不会自动重试；仅此前主界面成功恢复时允许自动进入。
+- 3 项 Manifest 语义回归：唯一 Launcher、原 Activity 仍注册、仅检查入口关闭硬件加速、既有服务/广播/权限/SDK 不变。
+- 主 DEX 原有 219 个类保持不变，新增 9 个入口辅助类。classes3.dex 原有 8191 个类保持不变，原 Activity 的全部业务方法原样保留，仅包装 onCreate/onStart、增加 onResume 标记及一项失败状态字段。
+- API17、19、24 的签名验证通过；仅 V1、无 V2/V3/V4，新包签名证书与旧包相同；ZIP CRC 与对齐通过。
+- payload 仅改变 AndroidManifest.xml、classes.dex、classes3.dex。资源、assets、classes2.dex、三个 armeabi-v7a 库逐字节相同。
+- APK 系统版本 0.1.6，versionCode44；业务主页面仍显示基础功能版本 0.1.4。未改变配对存储键或业务协议。
+- **没有 SD8227 实机或 API19 设备启动验证。没有取得此次故障的异常堆栈。** 这些是主机构建、签名及结构验证，不证明车机能启动、连接或运行稳定。原生/系统崩溃仍需 logcat。
+
+---
+
 # SD8227 V1 对照包：本地验证记录
 
 日期：2026-10-06。输入为已发布的 `CarConnect-0.1.4-beta-OEM-test-Android4.2.apk`。
