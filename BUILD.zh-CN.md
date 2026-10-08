@@ -1,3 +1,11 @@
+# 本分支当前构建：SD8227 MultiDex 兼容测试
+
+执行 `easyplay-sd8227/build-startup.ps1`，源码包对应 0.1.7 / versionCode48。依赖与固定输入哈希见 [STARTUP.zh-CN.md](STARTUP.zh-CN.md)。原始 APK 和签名密钥需要另行提供，不包含在公开源码中。
+
+以下为历史基础包构建说明，不表示本分支最新版本：
+
+---
+
 # 原车蓝牙补丁构建说明
 
 本次仍直接修改用户提供的 EasyPlay 0.2.7(36) APK，不是从完整 EasyPlay 源码构建，也没有替换本地 DiPlay 项目来冒充 APK 优化。

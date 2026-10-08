@@ -1,0 +1,17 @@
+{
+  "profile": "sd8227-multidex-test",
+  "baseSha256": "6328988e7b4ae458b576b8cf233bb8d3c3b627d5c7fac476b243d02e46582055",
+  "apkSha256": "ff4308ce0900997cf8ceef258a50e8a181361e417285f527d8c9bfdd978a4260",
+  "apkBytes": 7090083,
+  "versionCode": 48,
+  "minSdk": 17,
+  "changedEntries": [
+    "AndroidManifest.xml",
+    "classes.dex",
+    "classes3.dex"
+  ],
+  "unchangedAssetsAndNativeLibraries": true,
+  "v1Only": true,
+  "hardwareLaunch": "pending",
+  "rootCause": "device report: missing three-argument makeDexElements; adapter awaiting hardware retest"
+}
