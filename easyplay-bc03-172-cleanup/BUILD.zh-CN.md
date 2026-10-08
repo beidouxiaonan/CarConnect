@@ -10,4 +10,4 @@
 
 输出 `artifacts/CarConnect-0.1.8-beta-BC03-1.7.2-SPP-native-recovery-test.apk` 及 SHA256，code50、minSdk17、targetSdk28，纯 V1。维护者使用原测试证书以支持覆盖安装；自行构建需自行配置签名，不同证书不能覆盖原包。源码包白名单仅收集指定自编 Java、脚本、测试和说明。
 
-生成目录清理前验证绝对路径位于本项目 `.private/apk-analysis/easyplay/bc03-172-cleanup` 内，保留输入、源码与最终输出。验证结果见 [验证记录](BC03-172-CLEANUP-VERIFICATION.zh-CN.md)。
+生成目录清理前验证绝对路径位于本项目 `.private/apk-analysis/easyplay/bc03-172-cleanup` 内，保留输入、源码与最终输出。验证结果见 [验证记录](VERIFICATION.zh-CN.md)。
