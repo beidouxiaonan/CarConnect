@@ -1,5 +1,3 @@
-[下载测试 APK 和补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.8-beta-oem-spp-native-recovery-test)
-
 # CarConnect 0.1.8 OEM SPP 底层恢复测试
 
 适用分支 `codex/oem014-spp-cleanup`，针对 0.1.7 OEM 清理版的两项实车反馈：原车 `SppDisConnect` 请求返回却没有释放，启动自动清理失败后连接立即撞到 45 秒冷却。
@@ -27,4 +25,4 @@
 
 旧错误会留在诊断前面；应先核对当前版本 `Carplay-connect-0.1.8-beta-OEM-SPP-native-recovery-test`。其他车机只在 BC03 APK 与 gocsdk 精确指纹匹配时启用本路径，不对未知守护进程发送命令。
 
-本版沿用 OEM 0.1.4 业务代码，不包含 BC03 1.7.2 SPP 接入或 SD8227 MultiDex 启动修复。源码及说明公开，测试 APK 沿用原输入包已有实验性离线身份资产；源码不含这些资产、密钥、OEM 二进制/反编译代码或用户日志。详见 [接口分析](SPP-CLEANUP-ANALYSIS.zh-CN.md)、[构建](SPP-CLEANUP-BUILD.zh-CN.md)、[验证记录](SPP-CLEANUP-VERIFICATION.zh-CN.md)。
+本版沿用 OEM 0.1.4 业务代码，不包含 BC03 1.7.2 SPP 接入或 SD8227 MultiDex 启动修复。源码及说明公开，测试 APK 沿用原输入包已有实验性离线身份资产；源码不含这些资产、密钥、OEM 二进制/反编译代码或用户日志。详见 [接口分析](ANALYSIS.zh-CN.md)、[构建](BUILD.zh-CN.md)、[验证记录](VERIFICATION.zh-CN.md)。

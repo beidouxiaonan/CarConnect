@@ -1,3 +1,11 @@
+# 本分支当前构建：0.1.8 OEM SPP 底层恢复测试
+
+执行 `easyplay-spp-cleanup/build.ps1`，固定输入是已发布的 0.1.4 OEM APK；versionCode49，API17，沿用原证书且仅 V1。执行 `easyplay-spp-cleanup/package_public.py` 生成白名单源码包。构建需另行取得输入 APK、签名密钥及已核对的原车样本，公开源码不包含这些文件。
+
+依赖、校验和测试结果见 [构建说明](SPP-CLEANUP-BUILD.zh-CN.md) 与 [验证记录](SPP-CLEANUP-VERIFICATION.zh-CN.md)。以下保留历史说明，不表示本分支当前版本：
+
+---
+
 # 0.1.5 增量构建
 
 最新测试包先取得已发布 0.1.4 APK，再应用音频/全屏增量补丁。参见 [0.1.5 构建说明](AV-BUILD.zh-CN.md) 与本仓库 0.1.5 补丁源码压缩包。下面保留 0.1.4 基线的完整补丁构建说明。
