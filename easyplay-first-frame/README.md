@@ -1,5 +1,3 @@
-[下载测试 APK 和补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.9-beta-oem-first-frame-diagnostics-test)
-
 # CarConnect 0.1.9 OEM 首帧恢复与 SPP 冷却等待测试
 
 面向用户确认的 **BC03 1.7.9**，沿用 `codex/oem014-spp-cleanup` 的 OEM 0.1.8 精确基线。本包不是 BC03 1.7.2 接入版，也不包含 SD8227 启动补丁。
@@ -33,4 +31,4 @@
 
 若仍卡在 C4 后超时，复制最新的“原车通道诊断”和“诊断信息”完整文本，私下反馈；不要只截冷却倒计时。原车关闭再开启蓝牙可作为一次人工排查，会中断原车通话和蓝牙音乐，请在没有通话时操作。本包不自动重启蓝牙，不调用原厂 `btReset` 或删除配对。
 
-详见 [分析](OEM-RECOVERY-ANALYSIS.zh-CN.md)、[构建](OEM-RECOVERY-BUILD.zh-CN.md)、[验证](OEM-RECOVERY-VERIFICATION.zh-CN.md)。公开补丁源码不含原 APK 的身份资产、密钥、OEM 二进制/反编译代码或用户日志；测试 APK 沿用用户已授权的原输入包实验性离线身份资产。
+详见 [分析](ANALYSIS.zh-CN.md)、[构建](BUILD.zh-CN.md)、[验证](VERIFICATION.zh-CN.md)。公开补丁源码不含原 APK 的身份资产、密钥、OEM 二进制/反编译代码或用户日志；测试 APK 沿用用户已授权的原输入包实验性离线身份资产。

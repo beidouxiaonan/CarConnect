@@ -1,5 +1,3 @@
-[下载测试 APK 和补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.9-beta-oem-first-frame-diagnostics-test)
-
 # CarConnect 0.1.9 OEM 首帧恢复与 SPP 冷却等待测试
 
 面向用户确认的 **BC03 1.7.9**，沿用 `codex/oem014-spp-cleanup` 的 OEM 0.1.8 精确基线。本包不是 BC03 1.7.2 接入版，也不包含 SD8227 启动补丁。
