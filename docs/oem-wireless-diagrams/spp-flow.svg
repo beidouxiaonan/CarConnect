@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 875" role="img" aria-label="SPP 清理与冷却流程：只有确认释放才接入">
+<title>SPP 清理与冷却流程：只有确认释放才接入</title>
+<defs><marker id="arrow-2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#637696"/></marker></defs>
+<rect width="1000" height="875" fill="#fff"/>
+<rect x="70" y="30" width="550" height="70" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="345.0" y="72.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">核对文件、目标手机和本应用通道归属</text>
+<rect x="70" y="155" width="550" height="70" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="345.0" y="197.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">读取 SPP：空闲直接继续；占用才考虑清理</text>
+<rect x="70" y="280" width="550" height="70" rx="12" fill="#fff4e5" stroke="#deb777" stroke-width="1.5"/>
+<text x="345.0" y="309.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">占用且开关开启：若冷却未结束，等待剩余时间</text>
+<text x="345.0" y="335.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">C0：同一任务，不重复发 VH / VF</text>
+<rect x="70" y="405" width="550" height="70" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="345.0" y="434.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">Binder SppDisConnect 请求</text>
+<text x="345.0" y="460.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">C2：观察最多 5 秒，不把返回当成功</text>
+<rect x="70" y="530" width="550" height="70" rx="12" fill="#fff4e5" stroke="#deb777" stroke-width="1.5"/>
+<text x="345.0" y="559.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">仍占用：一次已核对的底层 VH 请求</text>
+<text x="345.0" y="585.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">C4：观察最多 12 秒，写出不等于释放</text>
+<rect x="70" y="745" width="550" height="85" rx="12" fill="#e9f6ee" stroke="#89c7a5" stroke-width="1.5"/>
+<text x="345.0" y="781.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">稳定释放后重新核对，继续 VF / iAP2 接入</text>
+<text x="345.0" y="807.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">C3 / C5：未连接状态连续稳定 300ms</text>
+<rect x="735" y="410" width="215" height="180" rx="12" fill="#f3f4f7" stroke="#bbc2cf" stroke-width="1.5"/>
+<text x="842.5" y="455.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">清理关闭、取消、</text>
+<text x="842.5" y="481.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">超时或再次占用</text>
+<text x="842.5" y="507.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif"></text>
+<text x="842.5" y="533.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">停止本轮</text>
+<text x="842.5" y="559.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">不发送新 VF</text>
+<polyline points="345,100 345,155" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<polyline points="345,225 345,280" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<polyline points="345,350 345,405" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<polyline points="345,475 345,530" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<polyline points="345,600 345,745" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<rect x="286.0" y="668" width="118.0" height="23" fill="white"/>
+<text x="345" y="685" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">释放稳定才继续</text>
+<polyline points="620,190 675,190 675,786 620,786" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<rect x="656.0" y="701" width="38.0" height="23" fill="white"/>
+<text x="675" y="718" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">空闲</text>
+<polyline points="70,440 28,440 28,786 70,786" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<rect x="38.0" y="679" width="70.0" height="23" fill="white"/>
+<text x="73" y="696" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">稳定释放</text>
+<polyline points="620,190 845,190 845,410" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<rect x="786.0" y="293" width="118.0" height="23" fill="white"/>
+<text x="845" y="310" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">占用且清理关闭</text>
+<polyline points="620,565 735,565" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<rect x="649.0" y="535" width="54.0" height="23" fill="white"/>
+<text x="676" y="552" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">未释放</text>
+</svg>

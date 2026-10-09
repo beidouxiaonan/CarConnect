@@ -1,26 +1,36 @@
 # CarConnect
 
-基于用户提供的 EasyPlay 0.2.7(36) APK 的车机测试补丁。当前版本：**Carplay-connect-0.1.5-beta-AV-test**，支持 Android 4.2～4.4。
+基于用户提供的 EasyPlay 0.2.7(36) APK 的车机测试补丁。主分支汇集自行编写的补丁、回归测试和说明；各测试 APK 按车机服务和故障分别构建，版本号更高不代表包含其他测试分支的所有改动。
 
-## 0.1.5 音频与系统栏测试版
+## 测试版选择
 
-针对快刷新画面时音频断续，以及诺威达 K1201 / Android 4.4 手动启动后系统快捷栏不隐藏的反馈：补上媒体 PCM 预缓冲及断流补缓冲、适度提高音频工作/接收线程优先级、在手动进入和窗口焦点恢复时重新请求全屏。
+| 用途 | 发布版本 | 适用范围与状态 |
+| --- | --- | --- |
+| 原车无线、SPP 冷却等待、无首帧有限重连 | [0.1.9 OEM 测试版](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.9-beta-oem-first-frame-diagnostics-test) | BC03 1.7.9；代码同时核对 1.3.6，需匹配 gocsdk。Android API17 起。**最新实车反馈仍有 SPP 清理超时，尚未解决持续占用。** |
+| BC03 1.7.2 的 SPP 恢复与接入验证 | [0.1.8 BC03 1.7.2 测试版](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.8-beta-bc03-172-spp-native-recovery-test) | 单独的 1.7.2 分支；不使用 OEM 1.7.9 包替代 |
+| 快刷新画面时音频断续、手动启动后系统快捷栏显示 | [0.1.5 音频与全屏测试版](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.5-beta-av-test) | 诺威达 K1201 / Android 4.4；实机效果待验证，厂商独立 Dock 接口未确认 |
+| SD8227 安装后无法启动、旧系统 MultiDex 异常 | [0.1.7 SD8227 MultiDex 测试版](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.7-sd8227-multidex-test) | 单独启动兼容分支；与原车无线适配分别验证 |
 
-**尚待实机验证，不承诺已解决厂商独立悬浮 Dock。** 媒体起播/恢复会有缓冲延迟；导航、Siri、通话等独立通道保持即时播放。USB/NCM、视频、触摸和原车蓝牙字节码沿用 0.1.4，也没有修复另一台 QuadCore-T3 的有线启动重启问题。
+**合并源码不会改变已发布 APK。** OEM 0.1.9 沿用 OEM 0.1.8 基线，不包含 AV 0.1.5 的音频/全屏增量、BC03 1.7.2 接入策略或 SD8227 启动补丁。QuadCore-T3 的有线启动整机重启仍需独立诊断。
 
-[下载 0.1.5 测试 APK 与补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.5-beta-av-test) · [音频/快捷栏测试说明](AV-TEST.zh-CN.md) · [增量构建说明](AV-BUILD.zh-CN.md) · [验证记录](AV-VERIFICATION.zh-CN.md)
+## OEM 0.1.9 当前问题
 
-沿用 0.1.4 的原车无线流程：首次选择并记住 iPhone，以后启动优先恢复这台手机，不必每次重新选择。手机记录兼容已有版本；等待原车服务、暂时断连或其他手机接入时不会自动清除或替换记录。诊断移到独立入口，保留此前视频、触摸、30/60fps 设置和导航/媒体音量。
+2026-10-09 的 BC03 1.7.9 实车反馈显示：原车 SppDisConnect 返回后，一次底层 VH 请求也未使 Binder 的 SPP 标志释放；状态观察未收到新的 SPP 广播，程序在发送 VF 之前停止。另有一次“连接已取消”，需要完整会话日志确定取消来源。不能据此认定占用来自某个后台应用，也不能认定缓存一定失效。
 
-[简明操作手册](USAGE.zh-CN.md) · [修改说明](CHANGES.zh-CN.md) · [构建说明](BUILD.zh-CN.md) · [来源与许可](CREDITS.md) · [维护者主页](https://github.com/beidouxiaonan)
+该失败发生在 iAP2 和无线首帧之前，60 秒无首帧重连对此无效。不修改缓存、不伪造释放广播、不跳过占用检查。诊断时先关闭自动连接，避免多轮记录混在一起；保留配对和手机选择。参见 [问题分析](OEM-RECOVERY-ANALYSIS.zh-CN.md) 和 [当前使用说明](OEM-RECOVERY-USAGE.zh-CN.md)。
 
-首次设置：原车蓝牙连接 iPhone 并开启热点 → CarConnect 设置开启原车蓝牙、选择并记住手机 → 手机允许 CarPlay。
-以后上车：原车蓝牙、热点就绪，启动 CarConnect 等待自动连接。
+## 操作和方案
 
-原车模块本身未自动回连时，仍需从原车蓝牙页面连接已配对手机。本补丁恢复 CarConnect 的手机选择与无线会话，不代替原车配对系统。
+首次：原车蓝牙连接 iPhone 并开启热点 → CarConnect 开启原车蓝牙路径、选择并保存手机 → 手机确认 CarPlay 授权。
 
-0.1.4 的原车无线与手机记忆流程保持不变；该版此前完成 58 项本地测试。本次音频/全屏增量完成 17 项回归测试及 APK 校验，K1201 / Android 4.4 实机测试仍待完成。
+以后上车：原车通话蓝牙和热点就绪，打开 CarConnect，等待自动连接。覆盖升级保留应用数据；正常重启无需重新选择 iPhone。原车模块尚未回连时，应用等待已保存手机，不代替原车配对系统。
 
-[测试 APK 与补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.5-beta-av-test)
+[完整方案与适配文件清单](docs/OEM-WIRELESS-FEASIBILITY.zh-CN.md) · [离线图文说明](docs/OEM-WIRELESS-FEASIBILITY.zh-CN.html) · [原有简明手册](USAGE.zh-CN.md) · [修改说明](CHANGES.zh-CN.md) · [构建入口](BUILD.zh-CN.md)
 
-源码包只包含自行编写的补丁、脚本、测试和说明，不是 EasyPlay 全量源码；不含输入 APK、原厂 APK、gocsdk、反编译原厂代码、认证文件、签名密钥或用户日志。许可证及第三方声明保留。
+主分支保留此前视频、触摸、30/60fps 设置和导航/媒体音量补丁。关于媒体预缓冲、线程优先级和标准全屏请求，见 [AV 测试说明](AV-TEST.zh-CN.md)、[AV 构建说明](AV-BUILD.zh-CN.md) 和 [AV 验证记录](AV-VERIFICATION.zh-CN.md)。
+
+## 验证与来源
+
+OEM 0.1.9 完成 51 项主机 JVM 回归和 API17 编译、DEX 差异、APK 载荷、对齐及签名检查。主机测试没有执行真实原车 Binder、PTY、蓝牙模块或 iPhone，不能替代实车验收。详见 [OEM 验证记录](OEM-RECOVERY-VERIFICATION.zh-CN.md)。
+
+仓库不是 EasyPlay 全量源码。公开文件不含输入 APK、原厂 APK、gocsdk、原厂反编译代码、认证文件、签名密钥或用户日志；测试 APK 沿用用户已授权的原输入包实验性离线身份资产。保留 [来源与许可](CREDITS.md)。[维护者主页](https://github.com/beidouxiaonan)。

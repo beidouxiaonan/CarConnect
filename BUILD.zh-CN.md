@@ -1,3 +1,17 @@
+# 主分支构建入口
+
+主分支保存多个独立测试补丁；请按输入 APK 和模块构建，不能把不同测试包的变化自动视为累积。当前 OEM 0.1.9 使用 `easyplay-first-frame/build.ps1`，输入固定为已发布 OEM 0.1.8，输出 code51、minSdk17、纯 V1 签名。详见 [0.1.9 构建说明](OEM-RECOVERY-BUILD.zh-CN.md) 与 [验证记录](OEM-RECOVERY-VERIFICATION.zh-CN.md)。
+
+公开构建需自行准备输入 APK、工具和签名密钥。维护者密钥不公开，自签包不能覆盖维护者版本。0.1.9 实车仍有接入前 SPP 清理失败，不将主机检查通过当作已修复。
+
+# 历史构建：0.1.8 OEM SPP 底层恢复测试
+
+执行 `easyplay-spp-cleanup/build.ps1`，固定输入是已发布的 0.1.4 OEM APK；versionCode49，API17，沿用原证书且仅 V1。执行 `easyplay-spp-cleanup/package_public.py` 生成白名单源码包。构建需另行取得输入 APK、签名密钥及已核对的原车样本，公开源码不包含这些文件。
+
+依赖、校验和测试结果见 [构建说明](SPP-CLEANUP-BUILD.zh-CN.md) 与 [验证记录](SPP-CLEANUP-VERIFICATION.zh-CN.md)。以下保留历史说明，不表示本分支当前版本：
+
+---
+
 # 0.1.5 增量构建
 
 最新测试包先取得已发布 0.1.4 APK，再应用音频/全屏增量补丁。参见 [0.1.5 构建说明](AV-BUILD.zh-CN.md) 与本仓库 0.1.5 补丁源码压缩包。下面保留 0.1.4 基线的完整补丁构建说明。
