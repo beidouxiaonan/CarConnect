@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 485" role="img" aria-label="无线无首帧有限恢复">
+<title>无线无首帧有限恢复</title>
+<defs><marker id="arrow-3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#637696"/></marker></defs>
+<rect width="1000" height="485" fill="#fff"/>
+<rect x="35" y="45" width="240" height="100" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="155.0" y="89.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">当前无线控制已启动</text>
+<text x="155.0" y="115.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">自动连接与恢复开启</text>
+<rect x="355" y="45" width="285" height="100" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="497.5" y="89.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">前台且 Surface 有效</text>
+<text x="497.5" y="115.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">连续 60 秒计时</text>
+<rect x="720" y="45" width="240" height="100" rx="12" fill="#fff4e5" stroke="#deb777" stroke-width="1.5"/>
+<text x="840.0" y="89.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">仍没有真实首帧</text>
+<text x="840.0" y="115.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">检查本轮恢复次数</text>
+<rect x="355" y="265" width="285" height="95" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="497.5" y="306.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">关闭本应用会话</text>
+<text x="497.5" y="332.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">按原 15～60 秒退避重试</text>
+<rect x="720" y="265" width="240" height="95" rx="12" fill="#f3f4f7" stroke="#bbc2cf" stroke-width="1.5"/>
+<text x="840.0" y="306.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">已自动恢复两次</text>
+<text x="840.0" y="332.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">保持监听并提示检查</text>
+<rect x="35" y="265" width="240" height="95" rx="12" fill="#e9f6ee" stroke="#89c7a5" stroke-width="1.5"/>
+<text x="155.0" y="306.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">真实首帧出现</text>
+<text x="155.0" y="332.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">取消计时，保持会话</text>
+<polyline points="275,95 355,95" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-3)"/>
+<polyline points="640,95 720,95" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-3)"/>
+<rect x="661.0" y="64" width="38.0" height="23" fill="white"/>
+<text x="680" y="81" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">超时</text>
+<polyline points="840,145 840,265" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-3)"/>
+<rect x="855.0" y="198" width="70.0" height="23" fill="white"/>
+<text x="890" y="215" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">达到两次</text>
+<polyline points="720,110 690,110 690,312 640,312" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-3)"/>
+<rect x="655.0" y="216" width="70.0" height="23" fill="white"/>
+<text x="690" y="233" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">未满两次</text>
+<polyline points="355,312 300,312 300,180 155,180 155,145" fill="none" stroke="#637696" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow-3)"/>
+<rect x="207.0" y="154" width="54.0" height="23" fill="white"/>
+<text x="234" y="171" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">新会话</text>
+<polyline points="497,145 497,215 155,215 155,265" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-3)"/>
+<rect x="260.0" y="187" width="70.0" height="23" fill="white"/>
+<text x="295" y="204" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">出现首帧</text>
+</svg>

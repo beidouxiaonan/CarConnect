@@ -1,3 +1,5 @@
+[完整方案：可行性、适配范围与文件清单](docs/OEM-WIRELESS-FEASIBILITY.zh-CN.md) · [下载离线图文说明](https://github.com/beidouxiaonan/CarConnect/releases/download/v0.1.9-beta-oem-first-frame-diagnostics-test/OEM-WIRELESS-FEASIBILITY.zh-CN.html)
+
 [下载测试 APK 和补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.9-beta-oem-first-frame-diagnostics-test)
 
 # CarConnect 0.1.9 OEM 首帧恢复与 SPP 冷却等待测试
