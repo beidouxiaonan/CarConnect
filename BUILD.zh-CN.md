@@ -1,3 +1,7 @@
+# 0.1.10 OEM SPP 保护增量构建
+
+执行 `easyplay-spp-guard/build.ps1`，固定输入 OEM 0.1.9，输出 code52、minSdk17、纯 V1；与原证书一致。参见[构建](OEM-SPP-GUARD-BUILD.zh-CN.md)和[验证](OEM-SPP-GUARD-VERIFICATION.zh-CN.md)。不把其他独立测试包视为自动累积。
+
 # 主分支构建入口
 
 主分支保存多个独立测试补丁；请按输入 APK 和模块构建，不能把不同测试包的变化自动视为累积。当前 OEM 0.1.9 使用 `easyplay-first-frame/build.ps1`，输入固定为已发布 OEM 0.1.8，输出 code51、minSdk17、纯 V1 签名。详见 [0.1.9 构建说明](OEM-RECOVERY-BUILD.zh-CN.md) 与 [验证记录](OEM-RECOVERY-VERIFICATION.zh-CN.md)。

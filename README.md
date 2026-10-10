@@ -6,6 +6,7 @@
 
 | 用途 | 发布版本 | 适用范围与状态 |
 | --- | --- | --- |
+| 停止清理失败后重复断开、底层恢复单独控制 | [0.1.10 OEM SPP 保护测试版](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.10-beta-oem-spp-guard-test) | BC03 1.7.9 / 已核对 1.3.6；API17 起。40 项新增主机回归通过，**车机连接恢复尚待验证**。底层 VH 默认关闭，空闲状态稳定后正常连接。 |
 | 原车无线、SPP 冷却等待、无首帧有限重连 | [0.1.9 OEM 测试版](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.9-beta-oem-first-frame-diagnostics-test) | BC03 1.7.9；代码同时核对 1.3.6，需匹配 gocsdk。Android API17 起。**最新实车反馈仍有 SPP 清理超时，尚未解决持续占用。** |
 | BC03 1.7.2 的 SPP 恢复与接入验证 | [0.1.8 BC03 1.7.2 测试版](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.8-beta-bc03-172-spp-native-recovery-test) | 单独的 1.7.2 分支；不使用 OEM 1.7.9 包替代 |
 | 快刷新画面时音频断续、手动启动后系统快捷栏显示 | [0.1.5 音频与全屏测试版](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.5-beta-av-test) | 诺威达 K1201 / Android 4.4；实机效果待验证，厂商独立 Dock 接口未确认 |
@@ -13,7 +14,11 @@
 
 **合并源码不会改变已发布 APK。** OEM 0.1.9 沿用 OEM 0.1.8 基线，不包含 AV 0.1.5 的音频/全屏增量、BC03 1.7.2 接入策略或 SD8227 启动补丁。QuadCore-T3 的有线启动整机重启仍需独立诊断。
 
-## OEM 0.1.9 当前问题
+## OEM SPP 当前状态
+
+[0.1.10 使用说明](OEM-SPP-GUARD-USAGE.zh-CN.md)修复清理失败后反复请求断开的路径：未完成标记跨进程保留，当前服务暂停自动重试；独立底层恢复默认关闭。通道确认空闲后沿用原连接。此改动不绕过持续占用/缓存门禁，实车尚未确认无线已恢复。
+
+### 0.1.9 实车反馈
 
 2026-10-09 的 BC03 1.7.9 实车反馈显示：原车 SppDisConnect 返回后，一次底层 VH 请求也未使 Binder 的 SPP 标志释放；状态观察未收到新的 SPP 广播，程序在发送 VF 之前停止。另有一次“连接已取消”，需要完整会话日志确定取消来源。不能据此认定占用来自某个后台应用，也不能认定缓存一定失效。
 
