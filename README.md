@@ -1,3 +1,7 @@
+**已直接核对：0.1.5 AV 的音频与系统栏优化完整包含在现有0.1.11 APK中。** [合并核对记录](BC03-UNIFIED-AV-MERGE-VERIFICATION.zh-CN.md)，无需重新切换旧AV版本。
+
+[完整功能与优化清单](BC03-UNIFIED-FEATURES.zh-CN.md)：按连接、视频与触摸、音频、系统栏、SPP 保护和诊断列出，并注明默认选项与未解决项。
+
 [下载测试 APK 和补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.11-beta-bc03-unified-test)
 
 # CarConnect 0.1.11 beta · BC03 统一适配测试

@@ -2,6 +2,8 @@
 
 主机测试共 117 项：清理保护/记录/服务暂停/1.7.2 时限/实际文件 schema/组合流程/原生命令 79 项；新增统一配置 8 项、socket 输出 8 项、分阶段期限 5 项；保留音频与全屏回归 17 项。
 
+2026-10-10 增加直接发布包对比：0.1.5 AV 与已发布 0.1.11 的 10 个音频/系统栏类规范化 DEX 完全一致，包括实际调用入口；EnhancementPanel 诊断方法仅有一处 BC03 兼容版本说明差异。新增构建校验不改变运行逻辑，也不替换已经发布的 APK。详细合并核对记录见分支根目录 `BC03-UNIFIED-AV-MERGE-VERIFICATION.zh-CN.md`。
+
 新增用例用实际三个 APK 样本验证单包配置和接口，拒绝中间版本的盲目范围匹配、版本和 hash 错配、daemon 变更。socket 测试模拟底层 drain flush 抛出 EBADF，确认登记及上层缓冲刷新不再调用 drain；仍检查关闭、取消和 EPIPE 写错误。期限用例检查独立阶段预算、状态等待后登记预算、45 秒总上限。
 
 API17 编译、DEX035及引用数量、ZIP CRC、ARMv7 ELF32、纯 V1 签名与 zipalign 检查；规范化 DEX 限制允许变化并保留协议、USB、视频、触控、手机记录、首帧及清理流程；AV 参考类完全一致。载荷只改变 classes3.dex、manifest、about.html、releases.json。

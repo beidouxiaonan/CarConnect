@@ -2,7 +2,11 @@
 
 同一个安装包自动选择已核对的 BC03 1.7.2、1.7.9、1.3.6 连接流程；无需按蓝牙服务版本选择三个 APK。其他版本没有被当作已兼容。修正本地 socket 排空等待及超时原因丢失问题，实车连接效果仍待验证。
 
+**0.1.5 AV 测试版的音频与系统栏优化已完整包含。** 直接对比两个已发布 APK：10 个相关类完全一致，诊断方法仅增加 1.7.2 的兼容说明；当前构建新增强制对比校验，无新增运行逻辑。
+
 [下载 APK 与补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.11-beta-bc03-unified-test)。分支 `codex/bc03-unified`。APK `CarConnect-0.1.11-beta-BC03-unified-test-Android4.2-4.4.apk`，显示 `Carplay-connect-0.1.11-beta-BC03-unified-test`，versionCode54，包名 `com.shihab.diplay.legacy`。
+
+[完整功能、优化与选项清单](FEATURES.zh-CN.md)：连接与手机记忆、画面和触控、方向盘与 Siri、独立音量、音频缓冲、标准全屏、SPP 保护、诊断及适配限制。
 
 ## 一次设置，之后恢复
 

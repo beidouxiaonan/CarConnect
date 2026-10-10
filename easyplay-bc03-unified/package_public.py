@@ -5,7 +5,7 @@ module=ROOT/'easyplay-bc03-unified'
 output=ROOT/'artifacts/CarConnect-0.1.11-beta-BC03-unified-patch-source.zip'
 files=[]
 for folder in ['src','stubs','test','test-stubs','tools','av-reference']:files.extend((module/folder).rglob('*.java'))
-files.extend(module/n for n in ['build.ps1','patch_apk.py','verify_apk.py','verify_native.py','package_public.py','README.md','ANALYSIS.zh-CN.md','BUILD.zh-CN.md','VERIFICATION.zh-CN.md'])
+files.extend(module/n for n in ['build.ps1','patch_apk.py','verify_apk.py','verify_native.py','verify_av_reference.py','package_public.py','README.md','FEATURES.zh-CN.md','ANALYSIS.zh-CN.md','BUILD.zh-CN.md','VERIFICATION.zh-CN.md'])
 files.extend(ROOT/n for n in ['LICENSE','easyplay-oem4/CREDITS.md','easyplay-oem4/tools/DexTool.java','easyplay-oem4/patch_brand.py','easyplay-oem4/src/com/shilapi/xcertplay/patch/OemProtocol.java','easyplay-oem4/stubs/com/shilapi/xcertplay/transport/BluetoothRfcommDuplexStream.java','easyplay-oem4/test-stubs/android/content/Context.java'])
 with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED) as z:
  for p in sorted(files):
@@ -17,7 +17,7 @@ with zipfile.ZipFile(output) as z:assert z.testzip() is None and len(z.namelist(
 digest=hashlib.sha256(output.read_bytes()).hexdigest()
 output.with_suffix('.zip.sha256').write_text(digest+'  '+output.name+'\n',encoding='utf-8')
 pub=ROOT/'artifacts/CarConnect-BC03-unified-publication';pub.mkdir(exist_ok=True)
-docs=[('README.md','BC03-UNIFIED-USAGE.zh-CN.md'),('ANALYSIS.zh-CN.md','BC03-UNIFIED-ANALYSIS.zh-CN.md'),('BUILD.zh-CN.md','BC03-UNIFIED-BUILD.zh-CN.md'),('VERIFICATION.zh-CN.md','BC03-UNIFIED-VERIFICATION.zh-CN.md')]
+docs=[('README.md','BC03-UNIFIED-USAGE.zh-CN.md'),('FEATURES.zh-CN.md','BC03-UNIFIED-FEATURES.zh-CN.md'),('ANALYSIS.zh-CN.md','BC03-UNIFIED-ANALYSIS.zh-CN.md'),('BUILD.zh-CN.md','BC03-UNIFIED-BUILD.zh-CN.md'),('VERIFICATION.zh-CN.md','BC03-UNIFIED-VERIFICATION.zh-CN.md')]
 for a,b in docs:
  text=(module/a).read_text(encoding='utf-8')
  for source,target in docs:text=text.replace(']('+source+')',']('+target+')')

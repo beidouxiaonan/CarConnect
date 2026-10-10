@@ -62,6 +62,7 @@ try {
     Run 'Assemble UI' { & $java -cp $jadx "$root/easyplay-oem4/tools/DexTool.java" asm "$work/modified" "$work/overlay.dex" }
     Run 'Merge' { & $java -Xmx1g -cp $jadx "$root/easyplay-oem4/tools/DexTool.java" merge "$work/connection.dex" "$work/base.dex" "$work/overlay.dex" "$work/build/dex/classes.dex" }
     Run 'Retain fixed 1.7.2 audio and fullscreen optimization' { & $java -Xmx1g -cp $jadx "$PSScriptRoot/tools/AvOverlay.java" "$work/connection.dex" "$work/av-base.dex" "$work/patched.dex" }
+    Run 'Verify all AV integrations directly against requested 0.1.5 release' { & $PythonPath "$PSScriptRoot/verify_av_reference.py" "$work/patched.dex" }
     Run 'Audit unchanged business and protocol classes and fixed AV reference' { & $java -Xmx1g -cp $jadx "$PSScriptRoot/tools/Audit.java" "$work/base.dex" "$work/patched.dex" "$work/av-base.dex" }
     Run 'Repack' { & $PythonPath "$PSScriptRoot/patch_apk.py" repack }
     Run 'Align' { & "$bt/zipalign.exe" -f 4 "$work/unsigned.apk" "$work/aligned.apk" }
