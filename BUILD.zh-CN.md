@@ -1,6 +1,34 @@
-# 主分支构建入口
+# 当前正式版构建：0.1.12
 
-主分支保存多个独立测试补丁；请按输入 APK 和模块构建，不能把不同测试包的变化自动视为累积。当前 OEM 0.1.9 使用 `easyplay-first-frame/build.ps1`，输入固定为已发布 OEM 0.1.8，输出 code51、minSdk17、纯 V1 签名。详见 [0.1.9 构建说明](OEM-RECOVERY-BUILD.zh-CN.md) 与 [验证记录](OEM-RECOVERY-VERIFICATION.zh-CN.md)。
+入口 `easyplay-release/build.ps1`，随后 `easyplay-release/package_public.py`。
+
+[完整正式版构建说明](easyplay-release/BUILD.zh-CN.md) · [142 项验证与 APK 兼容信息](RELEASE-VERIFICATION.zh-CN.md)。
+
+下方保留历史分支构建说明。
+
+# 当前构建：0.1.11 BC03 统一适配测试
+
+入口 `easyplay-bc03-unified/build.ps1`，随后 `package_public.py`。API17 / ARMv7 / 纯V1 / code54，三个实际蓝牙服务样本按版本与精确 APK/daemon 指纹分流。117项主机回归通过；实车待验证。详见 [构建](BC03-UNIFIED-BUILD.zh-CN.md)、[验证](BC03-UNIFIED-VERIFICATION.zh-CN.md)。
+
+---
+
+# 历史构建：0.1.10 BC03 1.7.2 SPP 保护与接入测试
+
+入口 `easyplay-bc03-172-guard/build.ps1`，再运行 `package_public.py`。精确 OEM 0.1.10 基线加固定 1.7.2 0.1.8 音频/全屏参考；96项主机回归，API17 / ARMv7 / 纯V1 / code53。同证书覆盖保留手机。输入、系统样本及签名密钥均不发布。详见 [构建说明](BC03-172-SPP-GUARD-BUILD.zh-CN.md) 与 [验证](BC03-172-SPP-GUARD-VERIFICATION.zh-CN.md)。
+
+---
+
+# 历史构建：0.1.8 BC03 1.7.2 SPP 底层恢复测试
+
+运行 `easyplay-bc03-172-cleanup/build.ps1`，然后 `easyplay-bc03-172-cleanup/package_public.py`。固定输入0.1.6 BC03 1.7.2 SPP APK，新增构建前精确 native 指纹与无索引 VH 检查，60项回归、API17、ARMv7、纯V1、code50。同签名可覆盖旧版，输入/签名密钥/原车样本不含在公开源码中。
+
+详见 [构建说明](BC03-172-CLEANUP-BUILD.zh-CN.md) 与 [验证记录](BC03-172-CLEANUP-VERIFICATION.zh-CN.md)。以下保留历史说明，不表示当前构建版本：
+
+---
+
+# 历史构建：0.1.9 OEM 首帧测试
+
+主分支保存多个独立测试补丁；请按输入 APK 和模块构建，不能把不同测试包的变化自动视为累积。当时 OEM 0.1.9 使用 `easyplay-first-frame/build.ps1`，输入固定为已发布 OEM 0.1.8，输出 code51、minSdk17、纯 V1 签名。详见 [0.1.9 构建说明](OEM-RECOVERY-BUILD.zh-CN.md) 与 [验证记录](OEM-RECOVERY-VERIFICATION.zh-CN.md)。
 
 公开构建需自行准备输入 APK、工具和签名密钥。维护者密钥不公开，自签包不能覆盖维护者版本。0.1.9 实车仍有接入前 SPP 清理失败，不将主机检查通过当作已修复。
 
@@ -9,6 +37,9 @@
 执行 `easyplay-spp-cleanup/build.ps1`，固定输入是已发布的 0.1.4 OEM APK；versionCode49，API17，沿用原证书且仅 V1。执行 `easyplay-spp-cleanup/package_public.py` 生成白名单源码包。构建需另行取得输入 APK、签名密钥及已核对的原车样本，公开源码不包含这些文件。
 
 依赖、校验和测试结果见 [构建说明](SPP-CLEANUP-BUILD.zh-CN.md) 与 [验证记录](SPP-CLEANUP-VERIFICATION.zh-CN.md)。以下保留历史说明，不表示本分支当前版本：
+
+---
+
 
 ---
 
