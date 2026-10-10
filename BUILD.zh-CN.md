@@ -1,3 +1,11 @@
+# 当前正式版构建：0.1.12
+
+入口 `easyplay-release/build.ps1`，随后 `easyplay-release/package_public.py`。
+
+[完整正式版构建说明](easyplay-release/BUILD.zh-CN.md) · [142 项验证与 APK 兼容信息](RELEASE-VERIFICATION.zh-CN.md)。
+
+下方保留历史分支构建说明。
+
 # 当前构建：0.1.11 BC03 统一适配测试
 
 入口 `easyplay-bc03-unified/build.ps1`，随后 `package_public.py`。API17 / ARMv7 / 纯V1 / code54，三个实际蓝牙服务样本按版本与精确 APK/daemon 指纹分流。117项主机回归通过；实车待验证。详见 [构建](BC03-UNIFIED-BUILD.zh-CN.md)、[验证](BC03-UNIFIED-VERIFICATION.zh-CN.md)。
