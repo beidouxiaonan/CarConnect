@@ -1,5 +1,3 @@
-[下载测试 APK 和补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.10-beta-bc03-172-spp-guard-test)
-
 # CarConnect 0.1.10 beta · BC03 1.7.2 SPP 保护与接入测试
 
 分支 `codex/bc03-172-k2001n`。将 OEM 0.1.10 的清理保护适配到已核对的 BC03 1.7.2 / gocsdk，保留原 1.7.2 分支的限时数据验证、音频缓冲及全屏恢复，同时保留 OEM 的首帧恢复。

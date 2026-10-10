@@ -1,4 +1,10 @@
-# 本分支当前构建：0.1.8 BC03 1.7.2 SPP 底层恢复测试
+# 当前构建：0.1.10 BC03 1.7.2 SPP 保护与接入测试
+
+入口 `easyplay-bc03-172-guard/build.ps1`，再运行 `package_public.py`。精确 OEM 0.1.10 基线加固定 1.7.2 0.1.8 音频/全屏参考；96项主机回归，API17 / ARMv7 / 纯V1 / code53。同证书覆盖保留手机。输入、系统样本及签名密钥均不发布。详见 [构建说明](BC03-172-SPP-GUARD-BUILD.zh-CN.md) 与 [验证](BC03-172-SPP-GUARD-VERIFICATION.zh-CN.md)。
+
+---
+
+# 历史构建：0.1.8 BC03 1.7.2 SPP 底层恢复测试
 
 运行 `easyplay-bc03-172-cleanup/build.ps1`，然后 `easyplay-bc03-172-cleanup/package_public.py`。固定输入0.1.6 BC03 1.7.2 SPP APK，新增构建前精确 native 指纹与无索引 VH 检查，60项回归、API17、ARMv7、纯V1、code50。同签名可覆盖旧版，输入/签名密钥/原车样本不含在公开源码中。
 
