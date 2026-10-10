@@ -1,51 +1,50 @@
-**已直接核对：0.1.5 AV 的音频与系统栏优化完整包含在现有0.1.11 APK中。** [合并核对记录](BC03-UNIFIED-AV-MERGE-VERIFICATION.zh-CN.md)，无需重新切换旧AV版本。
+# CarConnect
 
-[完整功能与优化清单](BC03-UNIFIED-FEATURES.zh-CN.md)：按连接、视频与触摸、音频、系统栏、SPP 保护和诊断列出，并注明默认选项与未解决项。
+基于用户提供的 EasyPlay 0.2.7(36) APK 的车机测试补丁。主分支现已汇集 **0.1.11 BC03 统一适配版**的源码、测试和完整功能文档，包含已核对的 BC03 1.7.2 / 1.7.9 / 1.3.6 配置，以及 0.1.5 的音频与系统栏优化。
 
-[下载测试 APK 和补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.11-beta-bc03-unified-test)
+[下载 0.1.11 统一测试 APK](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.11-beta-bc03-unified-test) · [完整功能与优化清单](BC03-UNIFIED-FEATURES.zh-CN.md) · [操作手册](BC03-UNIFIED-USAGE.zh-CN.md) · [音频 / 系统栏合并核对](BC03-UNIFIED-AV-MERGE-VERIFICATION.zh-CN.md)
 
-# CarConnect 0.1.11 beta · BC03 统一适配测试
+## 安装与适配范围
 
-同一个安装包自动选择已核对的 BC03 1.7.2、1.7.9、1.3.6 连接流程；无需按蓝牙服务版本选择三个 APK。其他版本没有被当作已兼容。修正本地 socket 排空等待及超时原因丢失问题，实车连接效果仍待验证。
+| 项目 | 当前统一 APK |
+|---|---|
+| 安卓最低版本 | Android 4.2 / API17，包含 Android 4.4 / 4.4.2 API19 运行分流；不是所有固件的实测保证 |
+| CPU / 系统 | 32 位 ARMv7（armeabi-v7a）；3 个原生库均为 ELF32 ARM，不是 x86 32 位通用包 |
+| 签名 | 纯 V1，按 API17 校验通过；同包名及测试证书可覆盖保留数据 |
+| BC03 无线 | 仅已核对的 1.7.2 / 1.7.9 / 1.3.6 APK、gocsdk 与接口配置；其他版本需实际样本 |
+| 安装文件 | 用户只安装 CarConnect APK；原车 BC03 服务及 gocsdk 使用原系统文件，无需 Root |
+| 仍需单独处理 | SD8227 启动 / MultiDex、K2001N 有线整机重启、厂商独立悬浮 Dock |
 
-[下载 APK 与补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.11-beta-bc03-unified-test)。分支 `codex/bc03-unified`。APK `CarConnect-0.1.11-beta-BC03-unified-test-Android4.2-4.4.apk`，显示 `Carplay-connect-0.1.11-beta-BC03-unified-test`，versionCode54，包名 `com.shihab.diplay.legacy`。
+安装版本名为 `Carplay-connect-0.1.11-beta-BC03-unified-test`，versionCode54，包名 `com.shihab.diplay.legacy`。安装条件符合不等于每台车机的启动、音视频、蓝牙固件均已验证。方向盘上一曲 / 下一曲在持续使用后失效的新反馈正在排查，0.1.11 尚未包含针对该反馈的新修复。
 
-## 一次设置，之后恢复
+## 功能与优化
 
-1. 使用同签名测试包覆盖安装，保留应用数据。已选择 iPhone、热点、音量、自动连接偏好继续保存；不用每次开机重新选手机。
-2. 在原车蓝牙页面连接已配对 iPhone，开启车机热点和 iPhone Wi-Fi；CarConnect 选择无线模式，启用“使用原车蓝牙连接 iPhone”。首次选择手机后启用自动连接。
-3. “允许底层 SPP 恢复”保持默认关闭。只有实际占用且清理开关开启时才请求原车释放；清理未确认暂停本轮自动重试，不循环断开。
-4. 等待完整一轮。失败时复制“原车通道诊断”和“诊断信息”全文私下反馈，尤其关注 `统一适配配置`、`T：` 阶段、S4/S5/S6 和关闭原因。不要频繁开关或重复清理。
+- 有线 / 无线模式、原车 / 标准蓝牙路径、记住及更换 iPhone、自动连接与暂停、热点信息和手填、三指下滑设置。
+- 30 / 60fps 请求上限、独立触摸发送队列、移动事件合并、最新解码画面及有限恢复、Siri / 麦克风和方向盘学习。
+- 导航与媒体分别 0～100% 音量，媒体实际预缓冲 / 断流补缓冲、容量保护、音频线程调度和即时语音通道。
+- 手动启动、前台恢复、窗口获得焦点和进入 CarPlay 时申请标准全屏；厂商浮动 Dock 仍需验证。
+- SPP 空闲直连、授权一次清理、持久化未完成标记、失败暂停、独立底层恢复开关、VF 冷却、阶段期限和 socket flush 修正。
+- 无首帧有限自动恢复，以及连接、原车蓝牙、视频、音频、系统栏和车机自检诊断。
 
-本应用恢复保存的选择；原车蓝牙的实际配对及通话连接仍由车机固件管理。手机尚未连接时保留记录并等待。卸载、清除应用数据会丢失本应用记录。
+详见[完整清单](BC03-UNIFIED-FEATURES.zh-CN.md)中的选项默认值、限制和流程图。
 
-## 支持范围
+## 每天上车
 
-| 原车蓝牙服务 | 统一包策略 | 验证范围 |
-|---|---|---|
-| BC03 1.7.2 | VF 后等待 15 秒，状态缺失可做一次限时接入；8 秒无接收数据关闭本应用客户端 | 已提供 APK / Binder schema / gocsdk 文件核对；新包实车待验证 |
-| BC03 1.7.9 | 原车报告 SPP 连接后才交接协议字节流 | 已提供文件及接口核对；新包实车待验证 |
-| BC03 1.3.6 | 同上，使用对应已核对文件指纹 | 已提供文件及接口核对；新包实车待验证 |
-| 1.7.3～1.7.8、其他版本或同版本不同 APK | 暂不发送原车控制命令，提示未核对或指纹不匹配 | 需补充实际文件及实车日志 |
-| HSAE / 其他厂商 | 本次没有增加其原车数据通道支持 | 不能套用 BC03 的 Binder / VF / VH |
+首次：原车蓝牙配对并连接 iPhone、开启车机热点 → CarConnect 开启原车路径，选择并保存手机 → 手机允许 CarPlay。以后原车蓝牙和热点就绪，打开应用等待自动连接；正常重启不必重新选择手机。原车 HFP 回连由固件管理。
 
-最低 API17（Android 4.2），覆盖 Android 4.4/4.4.2 API19；ARMv7，纯 V1，同测试证书。不是 Android 上限承诺，也不意味着所有标称 4.4 的固件均已验证。1.7.2 的样本 Bluetooth.apk 标注 API25，应以设备 SDK_INT 判断实际系统。
+底层 SPP 恢复默认关闭。清理未确认时暂停本轮重试，不要连续切换或反复发送请求；空闲时不清理。复制当前完整诊断再反馈。
 
-**K2001N_HDKJ_S112406 的有线连接整机重启问题尚未修复，继续用无线模式。** 本包没有合并 SD8227 专用启动/Multidex 分支；这与 BC03 无线版本分流是两个不同问题。
+## 构建、验证与历史版本
 
-## 安装哪些文件
+117 项主机回归及 API17 编译、签名、DEX / 载荷检查通过；0.1.5 与 0.1.11 的 10 个相关完整 AV 类 / 调用入口已直接核对一致。合并主分支只整合源码和文档，不重新签名或替换已发布的 APK。
 
-用户只安装 CarConnect APK。车机需要原本已运行、能提供匹配接口的 BC03 服务与 gocsdk；本应用不要求 Root，不替换系统蓝牙。
+[当前构建入口](BUILD.zh-CN.md) · [统一方案分析](BC03-UNIFIED-ANALYSIS.zh-CN.md) · [验证记录](BC03-UNIFIED-VERIFICATION.zh-CN.md) · [历史 OEM 可行性图文](docs/OEM-WIRELESS-FEASIBILITY.zh-CN.md) · [历史离线图文](docs/OEM-WIRELESS-FEASIBILITY.zh-CN.html) · [修改记录](CHANGES.zh-CN.md)
 
-若要适配未核对版本，请私下提供实际车机 `BC03BTService*.apk`、系统 `Bluetooth.apk`、`/system/bin/gocsdk`，以及型号、SDK_INT、蓝牙通道/连接诊断全文。这些文件用于核对，不能直接当作普通 APK 覆盖安装到其他车机。
+| 独立历史测试包 | 用途与边界 |
+|---|---|
+| [0.1.9 OEM](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.9-beta-oem-first-frame-diagnostics-test) | 历史 SPP / 首帧诊断；旧包不包含统一包后来的组合改动 |
+| [0.1.8 BC03 1.7.2](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.8-beta-bc03-172-spp-native-recovery-test) | 历史 1.7.2 接入；截图 EBADF 的分析见统一方案 |
+| [0.1.5 AV](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.5-beta-av-test) | 音频与标准全屏优化已经包含在当前统一包 |
+| [0.1.7 SD8227 MultiDex](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.7-sd8227-multidex-test) | 单独的启动兼容测试；尚未并入统一 APK |
 
-## 此次修正
-
-- 三个已核对版本统一分流，版本必须和 APK、gocsdk 精确指纹匹配；1.7.2 的限时状态缺失验证不应用到其他版本。
-- LocalSocket 的原始输出已经直接写入内核；下层 flush 不再等待对端读空队列。上层缓冲仍正常刷新，写入错误和关闭检查继续生效。
-- 本地 socket、VF 写入、SPP 等待、手机复核、地址登记、协议交接各自记录阶段；连接建立总计仍有 45 秒上限。超时/取消关闭原因不再被后续 EBADF 覆盖。
-- 保留 0.1.10 清理未完成标记、暂停重试、底层恢复独立开关，保留 VF 冷却、已选手机、首帧有限恢复、音频缓冲与标准全屏恢复。
-
-117 项主机回归、API17 编译、签名和载荷检查通过；实际持续 SPP 占用、iAP2 接受与车机稳定性还需实车验证。详见 [分析](BC03-UNIFIED-ANALYSIS.zh-CN.md)、[构建](BC03-UNIFIED-BUILD.zh-CN.md)、[验证](BC03-UNIFIED-VERIFICATION.zh-CN.md)。
-
-仅供学习测试。测试 APK 保留用户授权输入包已有实验性离线身份资产；补丁源码不含这些资产、OEM 二进制或反编译代码、签名密钥和用户日志。
+仓库不是 EasyPlay 全量源码。公开源码不含原厂 APK / gocsdk / 反编译代码、身份资产、密钥或用户日志；测试 APK 保留用户授权输入的原有实验性离线身份资产。[来源与许可](CREDITS.md) · [维护者主页](https://github.com/beidouxiaonan)。
