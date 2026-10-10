@@ -1,5 +1,3 @@
-[下载测试 APK 和补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.11-beta-bc03-unified-test)
-
 # CarConnect 0.1.11 beta · BC03 统一适配测试
 
 同一个安装包自动选择已核对的 BC03 1.7.2、1.7.9、1.3.6 连接流程；无需按蓝牙服务版本选择三个 APK。其他版本没有被当作已兼容。修正本地 socket 排空等待及超时原因丢失问题，实车连接效果仍待验证。
@@ -42,6 +40,6 @@
 - 本地 socket、VF 写入、SPP 等待、手机复核、地址登记、协议交接各自记录阶段；连接建立总计仍有 45 秒上限。超时/取消关闭原因不再被后续 EBADF 覆盖。
 - 保留 0.1.10 清理未完成标记、暂停重试、底层恢复独立开关，保留 VF 冷却、已选手机、首帧有限恢复、音频缓冲与标准全屏恢复。
 
-117 项主机回归、API17 编译、签名和载荷检查通过；实际持续 SPP 占用、iAP2 接受与车机稳定性还需实车验证。详见 [分析](BC03-UNIFIED-ANALYSIS.zh-CN.md)、[构建](BC03-UNIFIED-BUILD.zh-CN.md)、[验证](BC03-UNIFIED-VERIFICATION.zh-CN.md)。
+117 项主机回归、API17 编译、签名和载荷检查通过；实际持续 SPP 占用、iAP2 接受与车机稳定性还需实车验证。详见 [分析](ANALYSIS.zh-CN.md)、[构建](BUILD.zh-CN.md)、[验证](VERIFICATION.zh-CN.md)。
 
 仅供学习测试。测试 APK 保留用户授权输入包已有实验性离线身份资产；补丁源码不含这些资产、OEM 二进制或反编译代码、签名密钥和用户日志。

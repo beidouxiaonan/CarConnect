@@ -1,4 +1,10 @@
-# 当前构建：0.1.10 BC03 1.7.2 SPP 保护与接入测试
+# 当前构建：0.1.11 BC03 统一适配测试
+
+入口 `easyplay-bc03-unified/build.ps1`，随后 `package_public.py`。API17 / ARMv7 / 纯V1 / code54，三个实际蓝牙服务样本按版本与精确 APK/daemon 指纹分流。117项主机回归通过；实车待验证。详见 [构建](BC03-UNIFIED-BUILD.zh-CN.md)、[验证](BC03-UNIFIED-VERIFICATION.zh-CN.md)。
+
+---
+
+# 历史构建：0.1.10 BC03 1.7.2 SPP 保护与接入测试
 
 入口 `easyplay-bc03-172-guard/build.ps1`，再运行 `package_public.py`。精确 OEM 0.1.10 基线加固定 1.7.2 0.1.8 音频/全屏参考；96项主机回归，API17 / ARMv7 / 纯V1 / code53。同证书覆盖保留手机。输入、系统样本及签名密钥均不发布。详见 [构建说明](BC03-172-SPP-GUARD-BUILD.zh-CN.md) 与 [验证](BC03-172-SPP-GUARD-VERIFICATION.zh-CN.md)。
 

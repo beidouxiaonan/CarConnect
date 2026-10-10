@@ -1,5 +1,3 @@
-[下载测试 APK 和补丁源码](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.11-beta-bc03-unified-test)
-
 # CarConnect 0.1.11 beta · BC03 统一适配测试
 
 同一个安装包自动选择已核对的 BC03 1.7.2、1.7.9、1.3.6 连接流程；无需按蓝牙服务版本选择三个 APK。其他版本没有被当作已兼容。修正本地 socket 排空等待及超时原因丢失问题，实车连接效果仍待验证。
