@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CarConnect 原车蓝牙无线接入方案 · 可行性与适配清单</title>
+<style>
+:root{font-family:"Microsoft YaHei",system-ui,sans-serif;color:#20334b;background:#f2f5f9;line-height:1.85}
+*{box-sizing:border-box}body{margin:0}header{background:#132b49;color:#fff;padding:32px max(24px,calc((100vw - 1350px)/2))}
+.eyebrow{color:#afc8e7;font-size:13px;letter-spacing:2px}.lead{font-size:24px;font-weight:700;margin:6px 0}
+.badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.badges span{border:1px solid #55789c;border-radius:20px;padding:3px 13px;font-size:13px}
+.layout{max-width:1350px;margin:24px auto;display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;padding:0 22px}
+nav{position:sticky;top:20px;height:fit-content;font-size:13px;padding:18px;background:#fff;border-radius:12px;border:1px solid #dde5ef}
+nav strong{display:block;margin-bottom:10px}nav a{display:block;color:#526a87;padding:7px 0;text-decoration:none;line-height:1.6}
+main{min-width:0;background:#fff;padding:34px 38px;border:1px solid #dde5ef;border-radius:12px}h1{font-size:29px;line-height:1.4;margin-top:0}h2{font-size:23px;margin:44px 0 18px;scroll-margin-top:20px;border-top:1px solid #dee6ef;padding-top:24px}h3{font-size:18px;margin-top:24px}
+p{margin:14px 0}a{color:#1760ac;text-underline-offset:3px}strong{color:#142b46}code{background:#edf2f8;border-radius:4px;padding:1px 4px;font-size:.88em;overflow-wrap:anywhere}
+table{border-collapse:collapse;width:100%;font-size:13px;line-height:1.7;margin:20px 0;table-layout:fixed}th,td{border:1px solid #dce4ee;padding:10px 12px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th{background:#eaf0f7;color:#213e61}tbody tr:nth-child(even){background:#f8fafc}th:first-child{width:24%}
+li{padding-bottom:7px}.diagram{margin:24px 0;padding:8px;border:1px solid #dce4ee;border-radius:10px;background:white}.diagram svg{display:block;width:100%;height:auto}footer{text-align:center;color:#73839b;font-size:12px;padding:15px 20px 40px}
+@media(max-width:850px){.layout{display:block;padding:0 12px}nav{position:relative;top:0;margin-bottom:18px}main{padding:24px 18px}h1{font-size:24px}table{font-size:12px}th,td{padding:7px 6px}}
+@media print{body{background:white}header{background:white;color:#20334b;padding:12px}.eyebrow,.badges,nav,footer{display:none}.layout{display:block;margin:0;padding:0}main{border:0;padding:0}.diagram,table{break-inside:avoid}h2,h3{break-after:avoid}a{color:inherit}}
+</style></head><body>
+<header><div class="eyebrow">CARCONNECT / OEM WIRELESS</div><div class="lead">原车蓝牙无线接入方案</div><div>可行性 · 连接流程 · 安卓范围 · 蓝牙服务 · 文件清单</div><div class="badges"><span>当前目标：BC03 1.7.9</span><span>OEM 0.1.9 测试</span><span>普通 APK / 无 Root</span><span>实车验收待完成</span></div></header>
+<div class="layout"><nav><strong>文档目录</strong><a href="#part-1">1. 可行性结论</a><a href="#part-2">2. 方案架构与连接思路</a><a href="#part-3">3. SPP 清理、冷却与首帧恢复</a><a href="#part-4">4. Android 与 CPU 适配范围</a><a href="#part-5">5. 蓝牙版本与分支选择</a><a href="#part-6">6. 需要哪些 APK 和文件</a><a href="#part-7">7. 安装和日常使用手册</a><a href="#part-8">8. 现有验证与下一步验收</a><a href="#part-9">9. 发布、构建与参考依据</a></nav><main><h1>CarConnect 原车蓝牙无线接入方案</h1>
+<p>可行性、实现思路、适配范围与文件清单 · 2026-10-09</p>
+<p>本文以 <strong>CarConnect 0.1.9 OEM / BC03 1.7.9</strong> 为当前方案，另外说明 BC03 1.7.2 分支的差异。浏览器打开的发布页不代表车机实际安装版本。<a href="OEM-WIRELESS-FEASIBILITY.zh-CN.html">图文离线版</a>可下载后用浏览器打开。</p>
+<h2 id="part-1">1. 可行性结论</h2>
+<p><strong>这套方案在具备已核对 BC03 服务、gocsdk 和可访问数据通道的车机上具备可行性。用户已反馈此前版本能够无线连接，证明这条接入路线在部分现有环境中可以走通；尚未证明所有兼容车机都能稳定回连。</strong></p>
+<p>普通 APK 利用车机已有的厂商服务和数据端口，不需要 Root，也不需要替换系统蓝牙。当前最有把握解决的是连接任务反复进入冷却、保存手机恢复，以及无线控制启动后没有首帧的有限恢复。持续 SPP 占用仍需要运行时证据区分，不能保证通过普通 APK 一次性清除。</p>
+<p><strong>2026-10-09 实车反馈更新：OEM 0.1.9 / BC03 1.7.9 仍出现接入前清理失败。</strong> Binder 返回已连接，原接口返回和一次 VH 写出后，观察到的状态变化及新 SPP 广播均为零；最终“SPP 底层清理超时，未发送 VF”。另有一次“原车蓝牙连接已取消”，完整会话日志缺失，取消来源尚未确认。当前不能区分真实占用、重新占用和服务缓存残留，不能把其他应用当作已确认的占用方。首帧恢复此时尚未启动；合并主分支不表示这一故障已经修复。</p>
+<table>
+<thead>
+<tr>
+<th>目标</th>
+<th>当前可行性与依据</th>
+<th>实际限制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读取原车蓝牙、通话连接手机与模块地址</td>
+<td>已有文件核对和用户状态截图支持</td>
+<td>服务要允许普通应用绑定；返回地址必须有效</td>
+</tr>
+<tr>
+<td>通过外接模块启动无线 CarPlay</td>
+<td>用户反馈此前能够连接；字节流接入已实现</td>
+<td>需要匹配的模块协议、文件指纹、端口权限、iPhone 授权和热点</td>
+</tr>
+<tr>
+<td>重启后恢复已选择手机</td>
+<td>已实现持久保存，原存储逻辑未改</td>
+<td>保存选择不等于让原车 HFP 自动连上；卸载或清数据会丢失</td>
+</tr>
+<tr>
+<td>SPP 冷却期间避免反复报错</td>
+<td>0.1.9 改为同一任务等待，主机回归通过</td>
+<td>不代表占用方已退出，也不消除原厂缓存错误</td>
+</tr>
+<tr>
+<td>连接后无首帧自动恢复</td>
+<td>0.1.9 实现前台 60 秒、最多两次恢复</td>
+<td>只在无线控制启动后生效；不能修复接入前清理失败</td>
+</tr>
+<tr>
+<td>普通 APK 杀掉后台所有 SPP</td>
+<td>不能无条件实现</td>
+<td>本方案只请求释放已核对模块管理的 SPP，不具备全系统控制权限</td>
+</tr>
+<tr>
+<td>解决 USB/NCM 引起整机重启</td>
+<td>当前方案没有覆盖</td>
+<td>有线故障需要独立分阶段诊断，不能靠无线适配宣称已修复</td>
+</tr>
+</tbody>
+</table>
+<p>证据分为三类：<strong>代码与文件静态核对、主机回归测试、用户实车反馈</strong>。作者没有在目标车机执行这版 0.1.9，不能把主机测试等同于整车验收。</p>
+<h2 id="part-2">2. 方案架构与连接思路</h2>
+<p>车机的 Android 标准蓝牙栈与外接原车模块可能是两条路径。标准栈显示 <code>t3</code>，不代表它能访问原车 <code>BC8-Android</code> 模块上的已连接 iPhone。把名称改成原车名称，也不会让两个蓝牙栈合并。</p>
+<p>本方案从 BC03 读取真正的手机和模块地址，通过 gocsdk 的既有数据通道建立 iAP2，随后由原有 CarPlay 控制器接续到 Wi-Fi。<strong>蓝牙承担发现和接入，主要 CarPlay 音视频走 Wi-Fi；“蓝牙音乐已连接”不能证明 iAP2 已建立。</strong> 这段数据路径来自本项目实现，不代表任意蓝牙音乐模块都支持无线 CarPlay。</p>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 510" role="img" aria-label="原车蓝牙接入与 Wi-Fi 音视频架构">
+<title>原车蓝牙接入与 Wi-Fi 音视频架构</title>
+<defs><marker id="arrow-1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#637696"/></marker></defs>
+<rect width="1000" height="510" fill="#fff"/>
+<rect x="55" y="25" width="270" height="70" rx="12" fill="#f3f4f7" stroke="#bbc2cf" stroke-width="1.5"/>
+<text x="190.0" y="67.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">标准 Android 蓝牙 / t3</text>
+<rect x="55" y="195" width="270" height="90" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="190.0" y="234.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">CarConnect 普通 APK</text>
+<text x="190.0" y="260.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">无需替换系统蓝牙</text>
+<rect x="405" y="60" width="270" height="80" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="540.0" y="94.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">BC03 原车蓝牙服务</text>
+<text x="540.0" y="120.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">状态、手机与模块地址</text>
+<rect x="405" y="250" width="270" height="80" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="540.0" y="284.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">gocsdk 原厂守护进程</text>
+<text x="540.0" y="310.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">既有串口与 SPP socket</text>
+<rect x="740" y="150" width="225" height="85" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="852.5" y="186.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">外接原车蓝牙模块</text>
+<text x="852.5" y="212.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">与标准栈可能独立</text>
+<rect x="740" y="385" width="225" height="80" rx="12" fill="#e9f6ee" stroke="#89c7a5" stroke-width="1.5"/>
+<text x="852.5" y="419.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">iPhone</text>
+<text x="852.5" y="445.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">授权并加入热点</text>
+<polyline points="190,95 190,195" fill="none" stroke="#637696" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow-1)"/>
+<rect x="202.0" y="133" width="86.0" height="23" fill="white"/>
+<text x="245" y="150" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">另一条路径</text>
+<polyline points="325,217 365,217 365,100 405,100" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-1)"/>
+<rect x="337.5" y="153" width="55.0" height="23" fill="white"/>
+<text x="365" y="170" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">Binder</text>
+<polyline points="675,100 852,100 852,150" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-1)"/>
+<polyline points="325,262 365,262 365,290 405,290" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-1)"/>
+<rect x="321.0" y="333" width="86.0" height="23" fill="white"/>
+<text x="364" y="350" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">核对后接入</text>
+<polyline points="675,290 852,290 852,235" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-1)"/>
+<rect x="722.0" y="263" width="72.0" height="23" fill="white"/>
+<text x="758" y="280" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">SPP 通道</text>
+<polyline points="852,235 920,235 920,385" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-1)"/>
+<rect x="881.5" y="323" width="77.0" height="23" fill="white"/>
+<text x="920" y="340" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">iAP2 接入</text>
+<polyline points="190,285 190,425 740,425" fill="none" stroke="#637696" stroke-width="2" marker-start="url(#arrow-1)" marker-end="url(#arrow-1)"/>
+<rect x="355.0" y="398" width="220.0" height="23" fill="white"/>
+<text x="465" y="415" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">Wi-Fi：CarPlay 音视频与控制</text>
+</svg></figure>
+<p>实际接入按以下顺序进行：</p>
+<ol>
+<li>启动时只读检查原车状态，避免还未连接就消耗清理冷却。</li>
+<li>读取原车已连接的通话手机及模块 MAC，核对与保存的 iPhone 一致。</li>
+<li>核对 BC03 APK、gocsdk 文件哈希、Binder 描述符与接口格式。</li>
+<li>检查 SPP 状态：空闲则继续；占用且清理开关开启才请求释放。</li>
+<li>先调用原车 <code>SppDisConnect()</code>，无效时才使用已核对 gocsdk 的一次底层释放。</li>
+<li>释放后重新核对手机和通道，连接 <code>/dev/socket/goc_spp</code>；通过 <code>/dev/goc_serial</code> 发起带 iAP2 服务 UUID 的连接请求。</li>
+<li>观察 SPP 接续状态，完成 socket 地址登记，把字节流交给原有 iAP2 与无线 CarPlay 控制逻辑。</li>
+<li>等待真实首帧；出现首帧后取消首帧恢复计时。</li>
+</ol>
+<p>同一时间只允许一个接入任务。控制器切换、换手机、关闭开关或取消时退出旧任务，避免同时创建连接或清理本应用正在使用的通道。</p>
+<h2 id="part-3">3. SPP 清理、冷却与首帧恢复</h2>
+<h3>SPP：先确认释放，再建立新连接</h3>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 875" role="img" aria-label="SPP 清理与冷却流程：只有确认释放才接入">
+<title>SPP 清理与冷却流程：只有确认释放才接入</title>
+<defs><marker id="arrow-2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#637696"/></marker></defs>
+<rect width="1000" height="875" fill="#fff"/>
+<rect x="70" y="30" width="550" height="70" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="345.0" y="72.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">核对文件、目标手机和本应用通道归属</text>
+<rect x="70" y="155" width="550" height="70" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="345.0" y="197.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">读取 SPP：空闲直接继续；占用才考虑清理</text>
+<rect x="70" y="280" width="550" height="70" rx="12" fill="#fff4e5" stroke="#deb777" stroke-width="1.5"/>
+<text x="345.0" y="309.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">占用且开关开启：若冷却未结束，等待剩余时间</text>
+<text x="345.0" y="335.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">C0：同一任务，不重复发 VH / VF</text>
+<rect x="70" y="405" width="550" height="70" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="345.0" y="434.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">Binder SppDisConnect 请求</text>
+<text x="345.0" y="460.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">C2：观察最多 5 秒，不把返回当成功</text>
+<rect x="70" y="530" width="550" height="70" rx="12" fill="#fff4e5" stroke="#deb777" stroke-width="1.5"/>
+<text x="345.0" y="559.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">仍占用：一次已核对的底层 VH 请求</text>
+<text x="345.0" y="585.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">C4：观察最多 12 秒，写出不等于释放</text>
+<rect x="70" y="745" width="550" height="85" rx="12" fill="#e9f6ee" stroke="#89c7a5" stroke-width="1.5"/>
+<text x="345.0" y="781.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">稳定释放后重新核对，继续 VF / iAP2 接入</text>
+<text x="345.0" y="807.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">C3 / C5：未连接状态连续稳定 300ms</text>
+<rect x="735" y="410" width="215" height="180" rx="12" fill="#f3f4f7" stroke="#bbc2cf" stroke-width="1.5"/>
+<text x="842.5" y="455.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">清理关闭、取消、</text>
+<text x="842.5" y="481.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">超时或再次占用</text>
+<text x="842.5" y="507.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif"></text>
+<text x="842.5" y="533.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">停止本轮</text>
+<text x="842.5" y="559.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">不发送新 VF</text>
+<polyline points="345,100 345,155" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<polyline points="345,225 345,280" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<polyline points="345,350 345,405" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<polyline points="345,475 345,530" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<polyline points="345,600 345,745" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<rect x="286.0" y="668" width="118.0" height="23" fill="white"/>
+<text x="345" y="685" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">释放稳定才继续</text>
+<polyline points="620,190 675,190 675,786 620,786" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<rect x="656.0" y="701" width="38.0" height="23" fill="white"/>
+<text x="675" y="718" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">空闲</text>
+<polyline points="70,440 28,440 28,786 70,786" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<rect x="38.0" y="679" width="70.0" height="23" fill="white"/>
+<text x="73" y="696" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">稳定释放</text>
+<polyline points="620,190 845,190 845,410" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<rect x="786.0" y="293" width="118.0" height="23" fill="white"/>
+<text x="845" y="310" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">占用且清理关闭</text>
+<polyline points="620,565 735,565" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-2)"/>
+<rect x="649.0" y="535" width="54.0" height="23" fill="white"/>
+<text x="676" y="552" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">未释放</text>
+</svg></figure>
+<p>图中省略了所有阶段的取消与重新核对。冷却期间若发现通道已稳定空闲，会提前继续，不再发清理请求。</p>
+<table>
+<thead>
+<tr>
+<th>参数或记录</th>
+<th>当前含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>清理请求间隔 45 秒</td>
+<td>两次清理尝试的最小间隔；0.1.9 在同一个任务里等待剩余冷却</td>
+</tr>
+<tr>
+<td>Binder 等待 5 秒</td>
+<td>原服务请求返回后，观察 SPP 状态是否释放</td>
+</tr>
+<tr>
+<td>底层等待 12 秒</td>
+<td>原接口无效后写一次 VH，再观察状态</td>
+</tr>
+<tr>
+<td>稳定窗口 300ms</td>
+<td>清理后未连接标志连续稳定才继续接入</td>
+</tr>
+<tr>
+<td>清理状态观察约 17.3 秒上限</td>
+<td>不含可能额外等待的最多 45 秒冷却，也不保证厂商 Binder/设备调用本身绝不阻塞</td>
+</tr>
+<tr>
+<td>VF 保护窗口 45 秒</td>
+<td>对可能仍在原厂处理的旧连接请求保留保护，避免与清理或新请求碰撞</td>
+</tr>
+<tr>
+<td>C0</td>
+<td>正在同一任务等待冷却；不必反复点击</td>
+</tr>
+<tr>
+<td>C2 / C4</td>
+<td>原接口返回 / 底层命令写出；都不等于释放成功</td>
+</tr>
+<tr>
+<td>C3 / C5</td>
+<td>观察到对应阶段的稳定释放，继续原接入流程</td>
+</tr>
+</tbody>
+</table>
+<p>“VH 已写入”和“SPP 状态仍占用”并不矛盾：写入成功只说明请求送出。占用可能是真实连接、其他应用重新连接，或原车服务缓存没有收到回执；当前截图不能判定是哪一种。</p>
+<p>0.1.9 新增 <code>SPP 观察</code>：记录 Binder 缓存值、变化次数、最近广播与清理后的广播次数。广播只提供诊断线索，不用于绕过占用检查。原厂 <code>btReset</code> 的一个实现涉及 DFLT，因此本方案不把它作为普通 SPP 恢复操作，也不自动重启整个蓝牙模块。</p>
+<h3>首帧：对已经启动的无线会话做有限恢复</h3>
+<figure class="diagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 485" role="img" aria-label="无线无首帧有限恢复">
+<title>无线无首帧有限恢复</title>
+<defs><marker id="arrow-3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#637696"/></marker></defs>
+<rect width="1000" height="485" fill="#fff"/>
+<rect x="35" y="45" width="240" height="100" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="155.0" y="89.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">当前无线控制已启动</text>
+<text x="155.0" y="115.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">自动连接与恢复开启</text>
+<rect x="355" y="45" width="285" height="100" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="497.5" y="89.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">前台且 Surface 有效</text>
+<text x="497.5" y="115.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">连续 60 秒计时</text>
+<rect x="720" y="45" width="240" height="100" rx="12" fill="#fff4e5" stroke="#deb777" stroke-width="1.5"/>
+<text x="840.0" y="89.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">仍没有真实首帧</text>
+<text x="840.0" y="115.0" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">检查本轮恢复次数</text>
+<rect x="355" y="265" width="285" height="95" rx="12" fill="#eef5ff" stroke="#aac2ea" stroke-width="1.5"/>
+<text x="497.5" y="306.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">关闭本应用会话</text>
+<text x="497.5" y="332.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">按原 15～60 秒退避重试</text>
+<rect x="720" y="265" width="240" height="95" rx="12" fill="#f3f4f7" stroke="#bbc2cf" stroke-width="1.5"/>
+<text x="840.0" y="306.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">已自动恢复两次</text>
+<text x="840.0" y="332.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">保持监听并提示检查</text>
+<rect x="35" y="265" width="240" height="95" rx="12" fill="#e9f6ee" stroke="#89c7a5" stroke-width="1.5"/>
+<text x="155.0" y="306.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">真实首帧出现</text>
+<text x="155.0" y="332.5" text-anchor="middle" fill="#1d3457" font-size="18" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">取消计时，保持会话</text>
+<polyline points="275,95 355,95" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-3)"/>
+<polyline points="640,95 720,95" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-3)"/>
+<rect x="661.0" y="64" width="38.0" height="23" fill="white"/>
+<text x="680" y="81" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">超时</text>
+<polyline points="840,145 840,265" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-3)"/>
+<rect x="855.0" y="198" width="70.0" height="23" fill="white"/>
+<text x="890" y="215" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">达到两次</text>
+<polyline points="720,110 690,110 690,312 640,312" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-3)"/>
+<rect x="655.0" y="216" width="70.0" height="23" fill="white"/>
+<text x="690" y="233" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">未满两次</text>
+<polyline points="355,312 300,312 300,180 155,180 155,145" fill="none" stroke="#637696" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow-3)"/>
+<rect x="207.0" y="154" width="54.0" height="23" fill="white"/>
+<text x="234" y="171" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">新会话</text>
+<polyline points="497,145 497,215 155,215 155,265" fill="none" stroke="#637696" stroke-width="2" marker-end="url(#arrow-3)"/>
+<rect x="260.0" y="187" width="70.0" height="23" fill="white"/>
+<text x="295" y="204" text-anchor="middle" fill="#556784" font-size="16" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">出现首帧</text>
+</svg></figure>
+<p>前台计时不包含后台或 Surface 丢失时间。恢复开关默认开启并保存，自动连接关闭、有线模式、会话取消或服务销毁时不执行恢复。重试走原有 15～60 秒退避，不立即并发重连。</p>
+<p><strong>这里检测的是“始终没有首帧”，不是“播放一段时间后画面卡住”。</strong> 后一种视频停滞以及快速刷新导致音频卡顿需要另一套音视频诊断，本次恢复功能不宣称解决它们。</p>
+<h2 id="part-4">4. Android 与 CPU 适配范围</h2>
+<p>当前 OEM 0.1.9 的包名是 <code>com.shihab.diplay.legacy</code>，minSdk <strong>17</strong>、targetSdk <strong>28</strong>、versionCode <strong>51</strong>，DEX <strong>035</strong>，原生库是 <strong>armeabi-v7a / ELF32</strong>，采用与此前版本相同的 <strong>V1 签名证书</strong>。</p>
+<p>minSdk 是最低安装 API 要求，targetSdk 决定部分系统行为，不代表只能运行 Android 9。<a href="https://developer.android.com/guide/topics/manifest/uses-sdk-element">Android uses-sdk 官方说明</a>。文件名里的“Android4.2-4.4”表示旧系统目标范围，不是把车机系统降级成 4.2。</p>
+<table>
+<thead>
+<tr>
+<th>实际系统</th>
+<th style="text-align:right">API</th>
+<th>本方案应如何理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Android 4.1 及更低</td>
+<td style="text-align:right">16 及以下</td>
+<td>低于当前 minSdk，不在本包范围</td>
+</tr>
+<tr>
+<td>Android 4.2 / 4.2.2</td>
+<td style="text-align:right">17</td>
+<td>满足最低 API；新增代码按 API17 编译；尚不能据此保证每台原生 4.2 都能启动和连接</td>
+</tr>
+<tr>
+<td>Android 4.3</td>
+<td style="text-align:right">18</td>
+<td>满足最低 API；没有单独的实车验收证据</td>
+</tr>
+<tr>
+<td>Android 4.4 / 4.4.2</td>
+<td style="text-align:right">19</td>
+<td>本方案重点目标；仍须核对原车服务、权限和原生库运行情况</td>
+</tr>
+<tr>
+<td>Android 5.x～8.x</td>
+<td style="text-align:right">21～27</td>
+<td>API 下限满足；厂商服务、SELinux、节点权限和解码器需逐机验证；1.7.2 用户截图曾显示 API25，而非证明 OEM0.1.9 全面支持</td>
+</tr>
+<tr>
+<td>更高 Android 或纯 64 位环境</td>
+<td style="text-align:right">28 及以上 / 不含32位支持</td>
+<td>未作本方案通用验收；仅凭版本较新不能判断能用，纯64位环境不适配现有ARMv7原生库</td>
+</tr>
+</tbody>
+</table>
+<p>以应用诊断显示的 <code>SDK_INT</code> 和 ABI 为准，不能只信设置页的 Android 字样或车机型号。QuadCore-T3 只是 CPU 信息，不足以判断 BC03 服务版本和端口是否开放。</p>
+<p>两个容易误解的安装规则：</p>
+<ul>
+<li>原生 Android 4.4 验证 V1；<strong>有效 V1+V2 双签名并不会仅因包含 V2 就被 AOSP4.4 拒绝</strong>。旧系统忽略 V2、验证 V1，纯 V2 才缺少旧系统需要的签名。当前包使用纯 V1 以固定旧系统测试条件。<a href="https://source.android.com/docs/security/features/apksigning/v2">AOSP 签名说明</a>。</li>
+<li>通用 APK 可以包含多个 ABI，系统会选择适配的原生库；包含 arm64 本身不是解析失败依据。当前包的实际原生库为32位 ARMv7。<a href="https://developer.android.com/ndk/guides/abis">Android ABI 官方说明</a>。</li>
+</ul>
+<p>SD8227 的启动兼容另有独立分支。本 OEM 包没有合入该分支的 MultiDex 启动修复；“可安装”不等于“可启动”或“可无线连接”。K2001N_HDKJ_S112406 此前的有线整机重启也是独立问题，应继续走无线验证。</p>
+<h2 id="part-5">5. 蓝牙版本与分支选择</h2>
+<p>这里的 <strong>BC03 1.7.9 / 1.7.2 / 1.3.6 是原厂服务 APK 版本</strong>，不是 Bluetooth Core 4.0 / 4.2 / 5.x。现有文件不足以确定所有外接模块的 Core 版本，也不能按“蓝牙5.0”直接承诺兼容。</p>
+<table>
+<thead>
+<tr>
+<th>原车服务或模块</th>
+<th>当前选择</th>
+<th>核对与验收范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BC03 1.7.9</td>
+<td>当前 OEM 0.1.9</td>
+<td>用户确认的目标；文件指纹和 Binder 已核对，0.1.9 尚待实车回连验收</td>
+</tr>
+<tr>
+<td>BC03 1.3.6</td>
+<td>OEM 白名单包含该样本</td>
+<td>接口及文件已有静态依据；不代表这版已在该服务实车验证</td>
+</tr>
+<tr>
+<td>BC03 1.7.2</td>
+<td>独立 0.1.8 BC03-172 分支</td>
+<td>同一 gocsdk 样本，但额外包含状态缺失时的限时数据验证；当前 OEM0.1.9 不接受1.7.2 APK指纹</td>
+</tr>
+<tr>
+<td>同样标注1.7.9但文件哈希不同</td>
+<td>需要重新核对</td>
+<td>版本号相同不能代替字节指纹与接口核对</td>
+</tr>
+<tr>
+<td>HSAE / com.hsae.bluetoothservice</td>
+<td>当前 BC03 实现不适用</td>
+<td>抽象接口思路可复用，必须另外核对 Binder、UUID连接与二进制数据通道</td>
+</tr>
+<tr>
+<td>Android 标准蓝牙栈 / t3</td>
+<td>另一条标准连接路径</td>
+<td>不能用标准栈地址冒充原车外接模块地址</td>
+</tr>
+<tr>
+<td>普通 USB 蓝牙棒、其他未知模块</td>
+<td>尚未适配</td>
+<td>插入硬件不等于 Android有驱动，也不等于支持本厂商数据接口</td>
+</tr>
+</tbody>
+</table>
+<p>当前文件白名单：</p>
+<table>
+<thead>
+<tr>
+<th>文件样本</th>
+<th>SHA-256</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BC03 1.7.9 APK</td>
+<td><code>079e6446c475eaf7d067853cf525feedbf9a9619408db6df83d873c200616326</code></td>
+<td>当前OEM样本</td>
+</tr>
+<tr>
+<td>BC03 1.3.6 APK</td>
+<td><code>40c9cd2efd64a573303cb8bd1cf9061ab0f8f43cf161bddf4fb483f617e69349</code></td>
+<td>当前OEM样本</td>
+</tr>
+<tr>
+<td>BC03 1.7.2 APK</td>
+<td><code>32b25ec4eacada6bad179e4015f1c9ae8f9ce4df4fee9ee8baf6e99a781ede58</code></td>
+<td>只在独立172分支接受</td>
+</tr>
+<tr>
+<td><code>/system/bin/gocsdk</code></td>
+<td><code>3e8f5687b69623087145177358c2104aeae50f2eb943db8711af983e395ced60</code></td>
+<td>当前已核对的993828字节样本</td>
+</tr>
+</tbody>
+</table>
+<p>1.7.2 特殊路径会在 SPP 状态缺失时按既有15秒等待与8秒数据超时进行有限验证，仍以原 iAP2 结果为准。<strong>该机制不是允许绕过持续占用，不能简单把当前 OEM0.1.9 的 APK拿到1.7.2车机上替代。</strong></p>
+<h2 id="part-6">6. 需要哪些 APK 和文件</h2>
+<h3>用户使用：新增安装一个 CarConnect APK</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>是否需要新增安装</th>
+<th>用途和要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CarConnect 0.1.9 OEM 测试 APK</td>
+<td><strong>需要</strong></td>
+<td>当前1.7.9方案；覆盖安装，保留数据</td>
+</tr>
+<tr>
+<td><code>BC03BTService_AT+_HdLink_VP1.7.9.apk</code></td>
+<td>通常已在系统中，<strong>不作为新增安装步骤</strong></td>
+<td>原车蓝牙服务，包名 <code>com.bt.bc03</code>；普通重装不能替代系统集成和硬件配置</td>
+</tr>
+<tr>
+<td>原车蓝牙操作界面</td>
+<td>保留车机已有版本</td>
+<td>完成初次配对、连接通话蓝牙和开关操作；界面应用名称因固件而异</td>
+</tr>
+<tr>
+<td><code>Bluetooth.apk</code></td>
+<td><strong>不要跨固件覆盖安装</strong></td>
+<td>通常是 <code>com.android.bluetooth</code> 标准系统组件，不等同于BC03外接服务</td>
+</tr>
+<tr>
+<td><code>/system/bin/gocsdk</code></td>
+<td>已随固件运行，<strong>不是APK</strong></td>
+<td>原厂守护进程；不要求用户复制、替换或启动陌生二进制</td>
+</tr>
+<tr>
+<td>GocSdk服务APK</td>
+<td>当前方案没有额外安装要求</td>
+<td>不能把同名 <code>com.goodocom.gocsdk</code> APK 当成本方案所需的native守护进程</td>
+</tr>
+<tr>
+<td>CarLife、其他投屏APK</td>
+<td>不需要</td>
+<td>同时工作时可能重新占用SPP；仅卸载某个前台应用并不能证明后台通道释放</td>
+</tr>
+<tr>
+<td>iPhone 端APK/第三方客户端</td>
+<td>不需要</td>
+<td>使用iPhone原有CarPlay；接受手机显示的授权提示</td>
+</tr>
+</tbody>
+</table>
+<p>当前安装包：<code>CarConnect-0.1.9-beta-OEM-first-frame-diagnostics-test-Android4.2-4.4.apk</code>。</p>
+<p><strong>普通使用时，不需要把原厂蓝牙 APK 和 gocsdk 全部装一遍。它们是车机已有的运行依赖，也是开发者排查新固件时的输入。</strong></p>
+<h3>适配另一台车机：建议提取的资料</h3>
+<table>
+<thead>
+<tr>
+<th>输入</th>
+<th>是否必需</th>
+<th>需要确认的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实际运行的BC03服务APK</td>
+<td>BC03方案必需</td>
+<td>包名、版本、哈希、Manifest、Binder描述符、事务编号、设备Parcel格式</td>
+</tr>
+<tr>
+<td>实际 <code>/system/bin/gocsdk</code></td>
+<td>本底层桥接方案必需</td>
+<td>是否为相同协议与二进制，VF/VH、SPP端口和串口路径是否一致</td>
+</tr>
+<tr>
+<td><code>Bluetooth.apk</code></td>
+<td>建议提供，辅助</td>
+<td>标准栈版本及系统集成；不直接证明BC03路径可用</td>
+</tr>
+<tr>
+<td>原车蓝牙界面APK、关联厂商服务APK</td>
+<td>按情况提供</td>
+<td>配对、自动回连和profile状态由哪一层管理</td>
+</tr>
+<tr>
+<td>当前CarConnect完整诊断</td>
+<td>必需</td>
+<td>SDK_INT、CPU/ABI、服务与端口结果、C/R阶段、收发、视频状态</td>
+</tr>
+<tr>
+<td>SPP占用前后诊断和操作时间</td>
+<td>占用问题必需</td>
+<td>请求是否收到回执、是否重新占用、是否仅缓存未更新</td>
+</tr>
+<tr>
+<td>系统日志/权限信息</td>
+<td>有条件时提供</td>
+<td>服务拒绝、SELinux、节点权限、崩溃和解码器异常；普通用户不一定能读取全部底层日志</td>
+</tr>
+</tbody>
+</table>
+<p>用户以前提供的1.7.2 <code>Bluetooth.apk</code> 自身标注7.1.1/API25，另一次运行截图显示Android8.1/API25。这些冲突说明应逐项读取真实运行信息，不能从一个系统APK推断整台车机版本。</p>
+<h2 id="part-7">7. 安装和日常使用手册</h2>
+<p>首次只做一次设置：</p>
+<ol>
+<li>在原车蓝牙界面配对iPhone，并确认<strong>通话蓝牙已连接</strong>。</li>
+<li>开启车机热点，保持iPhone蓝牙和Wi-Fi开启；手机上确认CarPlay授权，检查CarPlay网络自动加入。Siri和Wi-Fi设置可参考<a href="https://support.apple.com/en-us/108415">Apple官方CarPlay说明</a>。该官方说明不证明本实验APK取得官方认证。</li>
+<li>安装适合服务版本的CarConnect；开启“使用原车蓝牙连接iPhone”，选择/更换iPhone并保存，开启自动连接。</li>
+<li>原车SPP可能被占用时，开启“连接前自动清理原车SPP（含底层恢复）”；开启会释放该模块管理的其他SPP投屏连接。</li>
+<li>OEM0.1.9中“无线无首帧时自动重连”默认开启，可以关闭并保存。</li>
+</ol>
+<p>以后上车：原车连接该iPhone、热点可用、打开CarConnect，等待一轮结束。<strong>不用反复选择手机，也不用看到C0就重新点连接。</strong> 保存手机不等于承诺系统自动启动CarConnect；本方案说明的是应用启动后的恢复。</p>
+<p>换手机时明确使用“选择/更换iPhone”。升级采用同包名同证书覆盖安装，不卸载、不清数据。BC03服务的配对记录由原车管理，CarConnect保存的是用户选择；两种记录不是同一份。</p>
+<p>如果仍失败，看最后停在哪一段：</p>
+<p>持续清理失败时，先关闭“自动连接”，停止多轮重试并等待至少 60 秒，让当前任务退出和清理冷却结束。在没有通话时，可人工关闭再开启原车蓝牙，再连接已配对 iPhone；这会暂时中断原车通话和蓝牙音乐，不需删除配对记录。回到 CarConnect 先复制“原车通道诊断”，再开启一次自动连接，等待一轮结果后复制“原车通道诊断”和“诊断信息”完整文本，私下反馈。保留最初的取消/失败前后记录；不要只提供冷却倒计时。上述操作用于定位，并非保证清理成功的修复。</p>
+<table>
+<thead>
+<tr>
+<th>最后阶段</th>
+<th>优先判断</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>原车HFP尚未连接 / 无有效MAC</td>
+<td>回原车界面确认已连接目标iPhone，不只看音乐连接</td>
+</tr>
+<tr>
+<td>文件指纹不匹配</td>
+<td>运行文件与样本不同，需要重新适配；不绕过校验</td>
+</tr>
+<tr>
+<td>C0等待</td>
+<td>等当前任务，期间不重复清理</td>
+</tr>
+<tr>
+<td>C4后超时，未发送VF</td>
+<td>接入前尚未确认释放，复制完整SPP观察；首帧重试在此无效</td>
+</tr>
+<tr>
+<td>VF后没有SPP连接状态</td>
+<td>原车接续或回执问题；172分支有专门有限验证，OEM分支不假定成功</td>
+</tr>
+<tr>
+<td>iAP2结束、无线已准备但没有首帧</td>
+<td>检查手机授权、热点与视频状态；0.1.9可能触发R3有限恢复</td>
+</tr>
+<tr>
+<td>received增加但decoded不增加</td>
+<td>优先检查解码输入或解码器；不直接归因于蓝牙</td>
+</tr>
+<tr>
+<td>decoded增加但texture不增加</td>
+<td>优先检查视频输出Surface/纹理更新</td>
+</tr>
+<tr>
+<td>已播放后冻结，或快速刷新音频卡顿</td>
+<td>属于持续音视频性能问题，不能用无首帧计时当成修复</td>
+</tr>
+</tbody>
+</table>
+<h2 id="part-8">8. 现有验证与下一步验收</h2>
+<p>0.1.9已通过 <strong>51项主机JVM回归</strong>：12项首帧策略、11项执行器集成、22项SPP释放/冷却、6项状态观察。API17编译、签名、ZIP对齐、载荷和DEX差异审计通过。模拟测试没有执行原车Binder、真实PTY、蓝牙模块或iPhone。</p>
+<p>建议实车按以下顺序记录结果，次数字段是建议验收指标，不是已完成的数据：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>建议验收方式</th>
+<th>通过标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>首次设置</td>
+<td>完成一次配对与选择</td>
+<td>正常显示首帧，音乐和控制可用</td>
+</tr>
+<tr>
+<td>正常重启</td>
+<td>连续5次，记录到首帧耗时</td>
+<td>手机选择保留，无需手选，能完成回连</td>
+</tr>
+<tr>
+<td>SPP清理</td>
+<td>占用时启动一次，不反复点击</td>
+<td>有C3/C5，或给出明确超时；不把C4当成功</td>
+</tr>
+<tr>
+<td>冷却重试</td>
+<td>在冷却窗口内触发一次</td>
+<td>C0等待，不重复VH/VF，取消和换手机立即终止旧任务</td>
+</tr>
+<tr>
+<td>无首帧</td>
+<td>授权/热点异常时观察R1/R3</td>
+<td>只在符合条件时重试，最多两次；不影响正常已出首帧的会话</td>
+</tr>
+<tr>
+<td>退到后台</td>
+<td>无首帧时切换到其他页面</td>
+<td>后台不消耗连续前台60秒期限</td>
+</tr>
+<tr>
+<td>音视频压力</td>
+<td>先用30fps连续导航/音乐30分钟</td>
+<td>单独记录音频卡顿和后续画面冻结，不与SPP清理混淆</td>
+</tr>
+</tbody>
+</table>
+<p>如果持续占用，下一步应围绕“回执是否产生、缓存是否更新、是否被重新连接”收集完整记录，而不是增加断开频率。新厂商接入应实现独立适配器，先做状态和传输验证，再复用上层控制逻辑；不能只添加版本号白名单。</p>
+<h2 id="part-9">9. 发布、构建与参考依据</h2>
+<table>
+<thead>
+<tr>
+<th>内容</th>
+<th>入口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>当前OEM0.1.9 APK、补丁源码及说明</td>
+<td><a href="https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.9-beta-oem-first-frame-diagnostics-test">0.1.9 OEM发布页</a></td>
+</tr>
+<tr>
+<td>OEM代码分支</td>
+<td><a href="https://github.com/beidouxiaonan/CarConnect/tree/codex/oem014-spp-cleanup">codex/oem014-spp-cleanup</a></td>
+</tr>
+<tr>
+<td>独立BC03 1.7.2 0.1.8版本</td>
+<td><a href="https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.8-beta-bc03-172-spp-native-recovery-test">BC03-172发布页</a></td>
+</tr>
+<tr>
+<td>当前实现和详细验证</td>
+<td><a href="https://github.com/beidouxiaonan/CarConnect/blob/codex/oem014-spp-cleanup/easyplay-first-frame/ANALYSIS.zh-CN.md">分析</a>、<a href="https://github.com/beidouxiaonan/CarConnect/blob/codex/oem014-spp-cleanup/easyplay-first-frame/README.md">使用</a>、<a href="https://github.com/beidouxiaonan/CarConnect/blob/codex/oem014-spp-cleanup/easyplay-first-frame/BUILD.zh-CN.md">构建</a>、<a href="https://github.com/beidouxiaonan/CarConnect/blob/codex/oem014-spp-cleanup/easyplay-first-frame/VERIFICATION.zh-CN.md">验证</a></td>
+</tr>
+</tbody>
+</table>
+<p>当前0.1.9 APK SHA-256：<code>cddbcfc1ec88d201dd0e42505caea7c4ccedd90edae2fd43c9e859c922351452</code>。同证书覆盖升级；应用标签CarConnect，包名保留原名称以延续安装和数据记录。</p>
+<p>复现构建还需要：授权的精确OEM0.1.8输入APK、项目自编补丁源码与审计工具、JDK、API17 android.jar、D8/签名/对齐工具、DEX编辑工具、Python及测试依赖、原厂核对样本和签名密钥。<strong>公开补丁源码不是可脱离原输入APK独立构建的完整产品源码</strong>。详细命令和依赖以构建说明为准。</p>
+<p>公开文档和补丁源码不包含原厂APK/gocsdk二进制、反编译原厂代码、签名密钥或用户日志。测试APK沿用此前授权的原输入包实验性离线身份资产；现有功能演示和可行性结论不等同于官方认证或商业分发许可。</p>
+</main></div>
+<footer>2026-10-09 · 文档和图形可离线查看；外部参考链接需要联网。</footer></body></html>

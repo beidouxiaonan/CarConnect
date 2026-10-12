@@ -1,0 +1,20 @@
+{
+  "profile": "sd8227-unified-018-test",
+  "baseSha256": "4e65747ca00cc7e876e4552c2fc161af488449bd2cec4cbc3e9946572eeafa39",
+  "apkSha256": "84c561306b862079da12a6c3a9831c7af30d590b90098695f5f22d73d77deb5f",
+  "apkBytes": 7148378,
+  "versionCode": 61,
+  "minSdk": 17,
+  "changedEntries": [
+    "AndroidManifest.xml",
+    "assets/easyplay/about.html",
+    "assets/easyplay/releases.json",
+    "classes.dex",
+    "classes3.dex"
+  ],
+  "unchangedNativeAndCoreResources": true,
+  "baseFeatures": "0.1.17 with 30-second first-frame recovery",
+  "v1Only": true,
+  "hardwareLaunch": "pending",
+  "rootCause": "device report: missing three-argument makeDexElements; adapter awaiting hardware retest"
+}
