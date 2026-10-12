@@ -1,3 +1,17 @@
+# CarConnect 0.1.17 · BC03 统一适配 · 30 秒首帧等待与全部日志
+
+当前 main 整合兼容已核对 **BC03 1.7.2 / 1.7.9 / 1.3.6（含 AT+ 样本）** 的最新恢复与诊断代码，并将原车无线控制启动后的首帧等待从 60 秒改为 **30 秒**。前台且 Surface 有效、连续无首帧才触发恢复，最多两次；首帧出现立即停止，仍使用原会话退出与退避。
+
+[当前版本功能、适配和构建](easyplay-integration17/README.zh-CN.md) · [完整功能清单](FEATURES.zh-CN.md) · [最新验证记录](INTEGRATION-0.1.17-VERIFICATION.zh-CN.md)
+
+保留手机记忆、SPP 保护、会话双向关闭与旧数据隔离、一次恢复进度与互斥、可关闭的休眠只读复查、全部日志及指定文件夹导出，以及音频、全屏、视频/触摸、方向盘、Siri/麦克风和 USB。目标为 Android 4.2+/API17、ARMv7 32 位，无需 ROOT；同包名/证书，versionCode60，可覆盖安装。
+
+**79 项主机回归与 API17/DEX035/ARMv7/V1/载荷审计通过，尚不能证明实车长期 SPP 占用和休眠回连已彻底解决。** 首帧 30 秒是恢复触发期限，不是保证 30 秒内显示画面。APK 与源码归档已本机构建，本次主分支整合不改动既有 0.1.12 发布资产。
+
+---
+
+## 上一正式发布 0.1.12 与历史说明
+
 # CarConnect 0.1.12 · BC03统一适配 · 音画与方向盘优化
 
 [正式版下载](https://github.com/beidouxiaonan/CarConnect/releases/tag/v0.1.12) · [完整功能与优化](FEATURES.zh-CN.md) · [操作手册](USAGE.zh-CN.md) · [适配条件与方案图](COMPATIBILITY.zh-CN.md) · [验证记录](RELEASE-VERIFICATION.zh-CN.md)

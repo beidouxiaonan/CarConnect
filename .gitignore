@@ -1,0 +1,5 @@
+.private/
+.tooling/
+artifacts/
+__pycache__/
+**/build-log.txt
